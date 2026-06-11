@@ -1518,6 +1518,8 @@ function showModal(msg, cb){
 }
 
 function pct(a,b){ return b>0?Math.round(a/b*100):0; }
+function fmtSecs(s){ const m=Math.floor(s/60),sec=s%60; return `${m}:${sec.toString().padStart(2,'0')}`; }
+function fmtUsed(remaining, total){ return `${fmtSecs(total-(remaining||0))} / ${fmtSecs(total)}`; }
 // Penalización por tiempo: a partir de la mitad del tiempo, -1% cada 3 segundos
 function timePenalty(tiempoRestante, totalTime){
   const used = totalTime - (tiempoRestante||0);
@@ -2011,24 +2013,28 @@ function generateResult(){
         <div class="big">${S.picking.correctos}<span style="font-size:1rem;color:var(--text3)">/${S.picking.totalPicks||6}</span></div>
         ${stars(pickPrec)}
         <div class="sub">Errores: ${S.picking.errores} · Pedido nº${S.picking.pedidoId||'—'}</div>
+        <div class="sub" style="color:#6b7280">⏱ Realizado en ${fmtUsed(S.picking.tiempoRestante,180)}</div>
       </div>
       <div class="result-card">
         <h4>🃏 PTL</h4>
         <div class="big">${S.ptl.secuencias}<span style="font-size:.9rem;color:#374151"> seq.</span></div>
         ${stars(ptlScore)}
         <div class="sub">Incidencias: ${S.ptl.incidencias}</div>
+        <div class="sub" style="color:#6b7280">⏱ Realizado en ${fmtUsed(S.ptl.tiempoRestante,180)}</div>
       </div>
       <div class="result-card">
         <h4>📦 Packing</h4>
         <div class="big">${S.packing.correctos}<span style="font-size:1rem;color:#374151">/3</span></div>
         ${stars(packPrec)}
         <div class="sub">Sobres correctos · Hoja nº${S.packing.sheetId||'—'}</div>
+        <div class="sub" style="color:#6b7280">⏱ Realizado en ${fmtUsed(S.packing.tiempoRestante,120)}</div>
       </div>
       <div class="result-card">
         <h4>🚚 Expediciones</h4>
         <div class="big">${S.cinta.correctos}<span style="font-size:.9rem;color:#374151"> + ${S.apilado.correctos}/4</span></div>
         ${stars((cintaPrec+apiScore)/2)}
         <div class="sub">Cinta: ${S.cinta.correctos}/${cintaModel?.lista?.length||10} · Apilado: ${S.apilado.correctos}/4</div>
+        <div class="sub" style="color:#6b7280">⏱ Cinta ${fmtUsed(S.cinta.tiempoRestante,120)} · Apilado ${fmtUsed(S.apilado.tiempoRestante,120)}</div>
       </div>
     </div>
 

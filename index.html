@@ -1,0 +1,2100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dinámica Operativa – RMT Logistics</title>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>emailjs.init('QBHyI_qCUjodV1qBH');</script>
+<style>
+:root{
+  --navy:#ffffff;
+  --navy2:#f0f5ff;
+  --blue:#1447e6;
+  --blue2:#0d36c4;
+  --blue-light:#e8eeff;
+  --blue-mid:#c5d3f5;
+  --orange:#f97316;--orange2:#ea6c00;
+  --green:#16a34a;--red:#dc2626;--yellow:#d97706;
+  --border:#c5d3f0;
+  --border-dark:#a0b0e0;
+  --light:#f8fafc;
+  --text:#111827;
+  --text2:#111827;
+  --text3:#374151
+}
+*{box-sizing:border-box;margin:0;padding:0;color:inherit}
+body{font-family:'Segoe UI',sans-serif;background:#f5f7ff;color:#111827;min-height:100vh}
+
+/* SCREENS */
+.screen{display:none;height:100vh;flex-direction:column;overflow:hidden}
+.screen.active{display:flex}
+
+/* TOPBAR */
+.topbar{background:#fff;border-bottom:2px solid var(--blue-mid);padding:12px 20px;display:flex;align-items:center;gap:12px;flex-shrink:0;box-shadow:0 2px 8px rgba(20,71,230,.08)}
+.topbar-logos{display:flex;align-items:center;gap:10px}
+.topbar-logo{height:28px;width:auto}
+.topbar-x{font-size:.75rem;font-weight:800;color:var(--border-dark);letter-spacing:.05em;flex-shrink:0}
+.topbar h2{font-size:.9rem;font-weight:700;color:var(--text)}
+.topbar .spacer{flex:1}
+.topbar-badge{background:var(--blue);color:#fff;padding:3px 10px;border-radius:20px;font-size:.7rem;font-weight:700;letter-spacing:.05em}
+.timer{background:var(--blue-light);border:2px solid var(--blue-mid);padding:6px 14px;border-radius:8px;font-size:1.1rem;font-weight:700;font-variant-numeric:tabular-nums;min-width:70px;text-align:center;color:var(--blue)}
+.timer.warn{background:#fef2f2;border-color:#dc2626;color:#dc2626;animation:blink 1s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.6}}
+
+/* PROGRESS */
+.prog-bar{height:4px;background:var(--blue-mid)}
+.prog-fill{height:100%;background:var(--blue);transition:width .4s}
+
+/* SCROLLABLE BODY */
+.body-scroll{flex:1;overflow-y:auto;padding:24px}
+.body-center{max-width:720px;margin:0 auto}
+.body-wide{max-width:1100px;margin:0 auto}
+#sc-inst-picking .body-scroll{padding:12px}
+#sc-inst-picking .body-wide{max-width:100%}
+
+/* WELCOME */
+#sc-welcome{background:linear-gradient(160deg,#eef2ff 0%,#f0f5ff 60%,#ffffff 100%);align-items:center;justify-content:center;text-align:center;padding:40px 20px}
+.welcome-logos{display:flex;align-items:center;gap:24px;justify-content:center;margin-bottom:32px}
+.welcome-logo-big{height:80px;width:auto}
+.welcome-x{font-size:1.4rem;font-weight:800;color:#9ca3af;letter-spacing:.05em}
+#sc-welcome h1{font-size:1.9rem;font-weight:800;color:var(--text);margin-bottom:6px}
+#sc-welcome .sub{color:var(--text3);margin-bottom:36px;font-size:.95rem}
+.station-grid{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:40px}
+.station-chip{background:#fff;border:2px solid var(--blue-mid);border-radius:12px;padding:18px 20px;width:150px;text-align:center;box-shadow:0 2px 10px rgba(20,71,230,.08)}
+.station-chip .ic{font-size:2rem;margin-bottom:8px}
+.station-chip .st-name{font-weight:700;font-size:.9rem;color:var(--text)}
+.station-chip .st-dur{font-size:.75rem;color:var(--text3);margin-top:3px}
+
+/* CARDS / PANELS */
+.card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;box-shadow:0 1px 6px rgba(20,71,230,.06)}
+.card-orange{border-left:4px solid var(--orange)}
+.card-blue{border-left:4px solid var(--blue)}
+.card-green{border-left:4px solid var(--green)}
+.card-red{border-left:4px solid var(--red)}
+.card h3{font-size:1rem;font-weight:700;margin-bottom:12px;color:var(--text)}
+.card p,.card li{font-size:.88rem;line-height:1.6;color:var(--text2)}
+.card ul{padding-left:18px}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:8px;padding:11px 22px;border-radius:10px;font-size:.9rem;font-weight:600;cursor:pointer;border:none;transition:all .2s;white-space:nowrap}
+.btn-primary{background:var(--blue);color:#fff}
+.btn-primary:hover{background:var(--blue2);transform:translateY(-1px)}
+.btn-success{background:var(--green);color:#fff}
+.btn-success:hover{background:#15803d}
+.btn-ghost{background:#fff;color:var(--text);border:2px solid var(--border)}
+.btn-ghost:hover{background:var(--blue-light);border-color:var(--blue)}
+.btn-lg{padding:14px 32px;font-size:1rem}
+.btn-sm{padding:7px 14px;font-size:.8rem}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important}
+
+/* FORM */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-group.full{grid-column:1/-1}
+label.lbl{font-size:.72rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em}
+input[type=text],input[type=email],input[type=tel],input[type=date],select{background:#fff;border:2px solid var(--border);border-radius:8px;padding:9px 12px;font-size:.9rem;color:var(--text);width:100%}
+input:focus,select:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(20,71,230,.1)}
+select option{background:#fff;color:var(--text)}
+.checkbox-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.checkbox-row div{background:#fff;border:2px solid var(--border);border-radius:20px;padding:6px 14px;font-size:.82rem;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s;user-select:none;color:var(--text2)}
+.checkbox-row div:hover{background:var(--blue-light);border-color:var(--blue)}
+.checkbox-row div.checked{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:600}
+.section-sep{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--blue);margin-top:20px;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid var(--blue-mid)}
+
+/* PICKING LAYOUT */
+.picking-layout{flex:1;display:grid;grid-template-columns:468px 1fr;overflow:hidden}
+.picking-sidebar{background:var(--navy2);border-right:1px solid var(--border);overflow-y:auto;display:flex;flex-direction:column}
+.picking-main{overflow-y:auto;padding:16px;background:var(--navy)}
+.pedido-img-wrap{padding:12px;border-bottom:1px solid var(--border)}
+.pedido-img-wrap img{width:100%;border-radius:8px;display:block}
+.pedido-stats{padding:12px 16px;display:flex;gap:10px}
+.stat-box{flex:1;background:var(--blue-light);border-radius:8px;padding:10px;text-align:center;border:1px solid var(--border)}
+.stat-box .stat-n{font-size:1.6rem;font-weight:800;color:var(--text)}
+.stat-box .stat-l{font-size:.7rem;color:var(--text3);margin-top:2px}
+
+/* WAREHOUSE */
+.warehouse{display:flex;flex-wrap:wrap;gap:10px}
+.pasillo{border:2px solid var(--border);border-radius:10px;background:#fff;overflow:hidden;min-width:150px;max-width:200px;flex:1;box-shadow:0 1px 4px rgba(20,71,230,.06)}
+.pasillo-hdr{padding:7px 12px;font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em}
+.p-A .pasillo-hdr{background:#fce7f3;color:#111827}
+.p-B .pasillo-hdr{background:#ede9fe;color:#111827}
+.p-C .pasillo-hdr{background:#dcfce7;color:#111827}
+.p-D .pasillo-hdr{background:#fef9c3;color:#111827}
+.p-E .pasillo-hdr{background:#f3e8ff;color:#111827}
+.ubic{margin:6px;border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.ubic-lbl{padding:2px 7px;font-size:.65rem;color:var(--text2);background:var(--blue-light);font-weight:700}
+.alt-row{padding:6px 8px;display:flex;flex-wrap:wrap;gap:4px;min-height:34px}
+.alt-azul{border-top:2px solid #3b82f6;background:rgba(59,130,246,.08)}
+.alt-naranja{border-top:2px solid #f97316;background:rgba(249,115,22,.08)}
+.alt-label{font-size:.6rem;padding:2px 6px;font-weight:700}
+.alt-azul .alt-label{color:#111827;font-weight:700}
+.alt-naranja .alt-label{color:#111827;font-weight:700}
+.tarj{padding:3px 8px;border-radius:4px;font-size:.7rem;cursor:pointer;border:1px solid transparent;transition:all .15s;user-select:none;font-weight:500}
+.tarj:hover{transform:scale(1.06)}
+.tarj.azul{background:#dbeafe;border-color:#93c5fd;color:#111827;font-weight:600}
+.tarj.naranja{background:#ffedd5;border-color:#fdba74;color:#111827;font-weight:600}
+.tarj.hit{background:#166534!important;border-color:#4ade80!important;color:#bbf7d0!important;cursor:not-allowed;opacity:.6}
+.tarj.partial{background:#fef3c7!important;border-color:#f59e0b!important;color:#78350f!important;font-weight:700;animation:pulse .5s}
+.tarj.miss{animation:shake .4s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+/* Error toast */
+#error-toast{position:fixed;top:24px;left:50%;transform:translateX(-50%) translateY(-80px);background:#ef4444;color:#fff;font-weight:800;font-size:1rem;padding:10px 28px;border-radius:999px;box-shadow:0 4px 24px rgba(239,68,68,.45);z-index:9999;pointer-events:none;transition:transform .25s cubic-bezier(.34,1.56,.64,1),opacity .25s;opacity:0}
+#error-toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+
+/* PTL */
+.ptl-pool{display:flex;flex-wrap:wrap;gap:8px;padding:14px;background:rgba(0,0,0,.2);border-radius:8px;border:2px dashed var(--border);min-height:90px}
+.ptl-card{width:46px;height:62px;border-radius:7px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:700;transition:all .15s;border:2px solid transparent;flex-shrink:0}
+.ptl-card:hover:not(.used){transform:scale(1.12);border-color:#fff}
+.ptl-card.used{opacity:.2;cursor:not-allowed;transform:none!important}
+.ptl-card.wrong{animation:shake .4s;border-color:#dc2626!important}
+.c-azul{background:#3b82f6;color:#fff}
+.c-rojo{background:#ef4444;color:#fff}
+.c-amarillo{background:#eab308;color:#1e293b}
+.c-verde{background:#22c55e;color:#fff}
+.c-blanco{background:#e2e8f0;color:#374151;border-color:#374151!important}
+.c-negro{background:#1e293b;color:#e2e8f0;border-color:#475569!important}
+.seq-row{display:flex;flex-wrap:wrap;gap:8px;min-height:60px;padding:10px;background:rgba(34,197,94,.06);border-radius:8px;border:1px solid rgba(34,197,94,.2)}
+.seq-unit{display:flex;gap:3px;align-items:center;background:rgba(0,0,0,.3);padding:5px;border-radius:6px;border:1px solid rgba(255,255,255,.08)}
+.inc-row{display:flex;flex-wrap:wrap;gap:6px;min-height:48px;padding:10px;background:rgba(239,68,68,.06);border-radius:8px;border:1px solid rgba(239,68,68,.2)}
+.mini-card{width:30px;height:40px;border-radius:4px;cursor:default;flex-shrink:0}
+.next-badge{background:var(--orange);color:#fff;padding:4px 12px;border-radius:20px;font-weight:700;font-size:.85rem}
+
+/* PACKING */
+.packing-sheet-img img{width:100%;max-width:500px;border-radius:10px;display:block;margin:0 auto}
+.sobre-opts{display:flex;gap:10px;margin-top:10px}
+.sobre-opt{flex:1;border:2px solid var(--border);border-radius:10px;padding:14px;text-align:center;cursor:pointer;transition:all .2s;background:rgba(255,255,255,.03)}
+.sobre-opt:hover{border-color:var(--orange)}
+.sobre-opt.sel{background:#fff3e0;border-color:var(--orange);color:#111827}
+.sobre-opt .sobre-letter{font-size:1.8rem;font-weight:900;color:#111827!important}
+.sobre-opt .sobre-name{font-size:.7rem;color:#374151;margin-top:2px}
+.pedido-block{background:var(--blue-light);border-radius:8px;padding:12px;margin-bottom:10px;border:2px solid var(--border)}
+.pedido-block.done{border-color:#16a34a;background:rgba(22,163,74,.08)}
+.pedido-num{font-size:.75rem;font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+
+/* EXPEDICIONES */
+.exp-layout{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.lista-img img{width:100%;border-radius:10px;display:block}
+.sobres-mesa{display:flex;flex-wrap:wrap;gap:6px;padding:14px;background:rgba(0,0,0,.25);border-radius:10px;border:2px dashed var(--border);min-height:90px}
+.s-sobre{padding:7px 12px;border-radius:6px;font-size:.75rem;font-weight:600;cursor:pointer;transition:all .15s;border-left:4px solid transparent;user-select:none}
+.s-sobre:hover{transform:scale(1.04)}
+.s-sobre.az{background:rgba(59,130,246,.15);border-left-color:#3b82f6;color:#111827}
+.s-sobre.na{background:rgba(249,115,22,.15);border-left-color:#f97316;color:#111827}
+.s-sobre.taken{opacity:.2;cursor:not-allowed;transform:none!important}
+.mi-caja{display:flex;flex-wrap:wrap;gap:6px;min-height:70px;padding:10px;border-radius:8px;border:2px solid}
+.caja-az{border-color:#3b82f6;background:rgba(59,130,246,.07)}
+.caja-na{border-color:#f97316;background:rgba(249,115,22,.07)}
+
+/* APILADO */
+.apilado-img-wrap{position:relative}
+.apilado-img-wrap img{width:100%;border-radius:10px}
+.apilado-answers{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+.ej-block{background:#fff;border:2px solid var(--border);border-radius:10px;padding:14px;box-shadow:0 1px 4px rgba(20,71,230,.05)}
+.ej-block h4{font-size:.8rem;font-weight:700;color:var(--orange);margin-bottom:10px}
+.abcd{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.abcd-btn{border:2px solid var(--border);background:rgba(255,255,255,.03);border-radius:8px;padding:10px;cursor:pointer;text-align:center;font-weight:700;font-size:.95rem;transition:all .15s;color:var(--text)}
+.abcd-btn:hover{border-color:var(--blue);background:var(--blue-light);color:#111827}
+.abcd-btn.sel{background:#dbeafe;border-color:var(--blue);color:#111827;font-weight:700}
+.abcd-btn.correct{background:rgba(22,163,74,.25);border-color:#4ade80;color:#bbf7d0}
+.abcd-btn.wrong{background:rgba(220,38,38,.2);border-color:#f87171;color:#fca5a5}
+
+/* RESULTADO */
+.result-hero{background:linear-gradient(135deg,var(--blue) 0%,#1a3bb8 100%);border:none;border-radius:16px;padding:28px;text-align:center;margin-bottom:20px;box-shadow:0 4px 20px rgba(20,71,230,.25)}
+.aptitud-badge{display:inline-block;padding:8px 28px;border-radius:24px;font-size:1.1rem;font-weight:800;margin:10px 0}
+.ba{background:rgba(22,163,74,.25);color:#4ade80;border:1px solid #4ade80}
+.ba2{background:rgba(34,197,94,.3);color:#86efac;border:1px solid #86efac}
+.ba3{background:rgba(134,239,172,.3);color:#bbf7d0;border:1px solid #bbf7d0}
+.bna{background:rgba(220,38,38,.2);color:#f87171;border:1px solid #f87171}
+.result-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.result-card{background:#fff;border:2px solid var(--border);border-radius:10px;padding:16px;box-shadow:0 1px 6px rgba(20,71,230,.06)}
+.result-card h4{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:#374151;margin-bottom:8px}
+.result-card .big{font-size:2rem;font-weight:800;color:var(--text)}
+.result-card .sub{font-size:.78rem;color:#374151;margin-top:3px}
+.stars{color:#eab308;font-size:1rem;letter-spacing:2px}
+.perf-bars{display:flex;flex-direction:column;gap:8px}
+.perf-bar-row{display:flex;align-items:center;gap:10px}
+.perf-bar-label{font-size:.78rem;color:#111827;min-width:170px}
+.perf-bar-track{flex:1;height:8px;background:var(--blue-mid);border-radius:4px;overflow:hidden}
+.perf-bar-fill{height:100%;border-radius:4px;transition:width .8s}
+.perf-bar-val{font-size:.78rem;font-weight:700;min-width:32px;text-align:right}
+.act-neg{background:rgba(220,38,38,.08);border:1px solid rgba(220,38,38,.2);border-radius:8px;padding:12px;font-size:.82rem;color:#fca5a5}
+.act-ok{background:rgba(22,163,74,.08);border:1px solid rgba(22,163,74,.2);border-radius:8px;padding:12px;font-size:.82rem;color:#86efac}
+
+/* NAV FOOTER */
+.nav-footer{background:#fff;border-top:2px solid var(--border);padding:14px 20px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;box-shadow:0 -2px 8px rgba(20,71,230,.06)}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(10,20,80,.5);display:none;align-items:center;justify-content:center;z-index:200}
+.modal-overlay.open{display:flex}
+.modal-box{background:#fff;border:2px solid var(--border);border-radius:16px;padding:32px;max-width:440px;width:90%;text-align:center;box-shadow:0 8px 32px rgba(20,71,230,.15)}
+.modal-icon{font-size:3rem;margin-bottom:12px}
+.modal-box h2{font-size:1.2rem;color:var(--text);margin-bottom:8px}
+.modal-box p{color:var(--text2);font-size:.9rem;margin-bottom:20px}
+
+/* RESPONSIVE */
+
+/* ── Tablet (≤900px) ── */
+@media(max-width:900px){
+  .body-wide{max-width:100%}
+  .perf-bar-label{min-width:130px}
+}
+
+/* ── Tablet estrecha / paisaje móvil (≤768px) ── */
+@media(max-width:768px){
+  /* layout picking */
+  .picking-layout{grid-template-columns:1fr;grid-template-rows:auto 1fr}
+  .picking-sidebar{max-height:364px;border-right:none;border-bottom:1px solid var(--border)}
+  /* formulario */
+  .form-grid{grid-template-columns:1fr}
+  /* expediciones */
+  .exp-layout{grid-template-columns:1fr}
+  /* resultados */
+  .result-grid{grid-template-columns:1fr}
+  .apilado-answers{grid-template-columns:1fr}
+  /* packing */
+  .body-wide div[style*="grid-template-columns:1fr 1fr"]{display:flex!important;flex-direction:column!important}
+  /* PTL secuencias+incidencias */
+  div[style*="grid-template-columns:1fr 1fr"]{display:flex!important;flex-direction:column!important;gap:12px!important}
+  /* topbar compacto */
+  .topbar{padding:8px 12px;gap:8px}
+  .topbar h2{font-size:.8rem}
+  .topbar-logo{height:22px}
+  /* welcome */
+  .welcome-logo-big{height:56px}
+  .welcome-x{font-size:1.1rem}
+  #sc-welcome h1{font-size:1.4rem}
+  #sc-welcome .sub{font-size:.85rem}
+  .station-grid{gap:10px}
+  .station-chip{width:130px;padding:14px 12px}
+  /* warehouse */
+  .pasillo{min-width:120px}
+  /* body padding */
+  .body-scroll{padding:14px}
+  /* perf bars */
+  .perf-bar-label{min-width:110px;font-size:.72rem}
+  /* nav footer */
+  .nav-footer{padding:10px 14px}
+}
+
+/* ── Móvil (≤480px) ── */
+@media(max-width:480px){
+  .inst-pick-grid{grid-template-columns:1fr!important}
+  /* welcome */
+  #sc-welcome{padding:24px 16px}
+  .welcome-logos{gap:14px;margin-bottom:20px}
+  .welcome-logo-big{height:44px}
+  .welcome-x{font-size:.95rem}
+  #sc-welcome h1{font-size:1.15rem}
+  #sc-welcome .sub{font-size:.8rem;margin-bottom:24px}
+  .station-grid{gap:8px}
+  .station-chip{width:calc(50% - 4px);padding:12px 8px}
+  .station-chip .ic{font-size:1.5rem;margin-bottom:4px}
+  .station-chip .st-name{font-size:.8rem}
+  /* topbar */
+  .topbar{padding:6px 10px;gap:6px}
+  .topbar h2{font-size:.72rem}
+  .topbar-logo{height:18px}
+  .topbar-x{font-size:.65rem}
+  .topbar-badge{display:none}
+  .timer{font-size:.95rem;padding:4px 10px;min-width:58px}
+  /* scroll body */
+  .body-scroll{padding:10px}
+  /* cards */
+  .card{padding:14px}
+  /* botones grandes */
+  .btn-lg{padding:12px 20px;font-size:.9rem}
+  /* warehouse tarjetas pequeñas */
+  .pasillo{min-width:100px;max-width:160px}
+  .tarj{font-size:.62rem;padding:2px 5px}
+  .warehouse{gap:6px}
+  /* picking sidebar */
+  .picking-sidebar{max-height:286px}
+  .pedido-img-wrap{padding:8px}
+  .pedido-stats{padding:8px 10px;gap:6px}
+  .stat-box .stat-n{font-size:1.2rem}
+  /* sobre packing */
+  .sobre-opt{padding:10px 6px}
+  .sobre-opt .sobre-letter{font-size:1.4rem}
+  /* PTL cards */
+  .ptl-card{width:38px;height:52px}
+  /* sobres expediciones */
+  .s-sobre{font-size:.7rem;padding:5px 8px}
+  /* resultados */
+  .result-hero{padding:18px 14px}
+  .result-card .big{font-size:1.5rem}
+  .perf-bar-label{min-width:90px;font-size:.68rem}
+  .perf-bar-val{font-size:.68rem}
+  /* abcd quiz */
+  .abcd{grid-template-columns:1fr}
+  /* modal */
+  .modal-box{padding:20px 16px}
+  .modal-box h2{font-size:1rem}
+  /* nav footer */
+  .nav-footer{padding:8px 10px;gap:8px}
+  .nav-footer .btn{padding:9px 14px;font-size:.82rem}
+}
+@media print{
+  .topbar,.nav-footer,.btn,.prog-bar{display:none!important}
+  body{background:#fff;color:#000}
+  .card,.result-card,.result-hero{background:#fff;border:1px solid #ddd;color:#000}
+}
+</style>
+</head>
+<body>
+<div id="error-toast">❌ Error · -5%</div>
+
+<!-- Confirm start modal -->
+<div id="confirm-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:10000;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:18px;padding:32px 28px;max-width:340px;width:90%;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,.25)">
+    <div id="confirm-question">
+      <div style="font-size:2rem;margin-bottom:12px">🚀</div>
+      <h3 style="margin:0 0 8px;font-size:1.1rem;color:#111827">¿Estás listo/a para empezar?</h3>
+      <p style="font-size:.88rem;color:#6b7280;margin:0 0 24px">Una vez empieces, el cronómetro arrancará.</p>
+      <div style="display:flex;gap:12px;justify-content:center">
+        <button class="btn btn-ghost" onclick="closeConfirm()">Cancelar</button>
+        <button class="btn btn-primary" onclick="doCountdown()">Sí, empezar ▶</button>
+      </div>
+    </div>
+    <div id="confirm-countdown" style="display:none">
+      <div id="countdown-num" style="font-size:5rem;font-weight:900;color:var(--blue);line-height:1;margin:8px 0 16px">3</div>
+      <p style="font-size:.9rem;color:#6b7280;margin:0">Prepárate…</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ WELCOME ══════════════ -->
+<div id="sc-welcome" class="screen active">
+  <div style="max-width:680px;width:100%">
+
+    <div class="welcome-logos">
+      <img src="img/logo-color.png" class="welcome-logo-big" alt="Attitude" onerror="this.style.display='none'">
+      <span class="welcome-x">×</span>
+      <img src="img/logo-rmt.jpeg" class="welcome-logo-big" alt="RMT Logistics" onerror="this.style.display='none'">
+    </div>
+
+    <h1>Dinámica de Selección Operativa</h1>
+    <p class="sub">Evaluación digital de competencias logísticas · RMT Logistics</p>
+
+    <p style="font-size:.92rem;color:#374151;line-height:1.65;margin-bottom:24px;max-width:520px;margin-left:auto;margin-right:auto">
+      Bienvenido/a a la dinámica de selección de <strong>RMT Logistics</strong>. A continuación realizarás una serie de pruebas prácticas que simulan las tareas reales del puesto operativo. El objetivo es que puedas demostrar tus habilidades de concentración, organización y ritmo de trabajo en un entorno logístico.
+    </p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px;text-align:left">
+      <div style="background:#fff;border:1px solid var(--blue-mid);border-radius:10px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start">
+        <span style="font-size:1.3rem">⏱️</span>
+        <div>
+          <div style="font-weight:700;font-size:.82rem;color:var(--text);margin-bottom:2px">Tiempo real</div>
+          <div style="font-size:.76rem;color:var(--text3)">Cada prueba tiene un cronómetro. Trabaja con calidad y rapidez.</div>
+        </div>
+      </div>
+      <div style="background:#fff;border:1px solid var(--blue-mid);border-radius:10px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start">
+        <span style="font-size:1.3rem">🎯</span>
+        <div>
+          <div style="font-weight:700;font-size:.82rem;color:var(--text);margin-bottom:2px">Precisión</div>
+          <div style="font-size:.76rem;color:var(--text3)">Cada error penaliza el resultado. Lee bien antes de actuar.</div>
+        </div>
+      </div>
+      <div style="background:#fff;border:1px solid var(--blue-mid);border-radius:10px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start">
+        <span style="font-size:1.3rem">📋</span>
+        <div>
+          <div style="font-weight:700;font-size:.82rem;color:var(--text);margin-bottom:2px">Instrucciones previas</div>
+          <div style="font-size:.76rem;color:var(--text3)">Antes de cada prueba verás un ejemplo visual. Léelo con calma.</div>
+        </div>
+      </div>
+      <div style="background:#fff;border:1px solid var(--blue-mid);border-radius:10px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start">
+        <span style="font-size:1.3rem">🔒</span>
+        <div>
+          <div style="font-weight:700;font-size:.82rem;color:var(--text);margin-bottom:2px">Confidencialidad</div>
+          <div style="font-size:.76rem;color:var(--text3)">Tus datos y resultados son tratados con total confidencialidad.</div>
+        </div>
+      </div>
+    </div>
+
+    <p style="font-size:.8rem;color:var(--text3);margin-bottom:16px">Las 4 estaciones de la dinámica:</p>
+    <div class="station-grid" style="margin-bottom:28px">
+      <div class="station-chip"><div class="ic">🗂️</div><div class="st-name">Picking</div><div class="st-dur">3 min</div></div>
+      <div class="station-chip"><div class="ic">🃏</div><div class="st-name">PTL</div><div class="st-dur">3 min</div></div>
+      <div class="station-chip"><div class="ic">📦</div><div class="st-name">Packing</div><div class="st-dur">2 min</div></div>
+      <div class="station-chip"><div class="ic">🚚</div><div class="st-name">Expediciones</div><div class="st-dur">4 min</div></div>
+    </div>
+
+    <button class="btn btn-primary btn-lg" onclick="go('sc-register')">Comenzar ›</button>
+    <p style="font-size:.74rem;color:#9ca3af;margin-top:12px">Al continuar aceptas que tus datos sean usados para esta evaluación</p>
+
+  </div>
+</div>
+
+<!-- ══════════════ REGISTRO ══════════════ -->
+<div id="sc-register" class="screen">
+  <div class="topbar">
+    <div class="topbar-logos">
+      <img src="img/logo-color.png" class="topbar-logo" alt="Attitude" onerror="this.style.display='none'">
+      <span class="topbar-x">×</span>
+      <img src="img/logo-rmt.jpeg" class="topbar-logo" alt="RMT Logistics" onerror="this.style.display='none'">
+    </div>
+    <h2>Registro del candidato/a</h2><div class="spacer"></div>
+    <span style="color:var(--text3);font-size:.8rem">1 / 5</span>
+  </div>
+  <div class="prog-bar"><div class="prog-fill" style="width:20%"></div></div>
+  <div class="body-scroll">
+    <div class="body-center">
+      <div class="card card-blue" style="margin-bottom:20px">
+        <h3>📋 Ficha de datos identificativos</h3>
+        <p>Completa tus datos antes de empezar las pruebas. Esta información es confidencial.</p>
+      </div>
+      <div class="form-grid" id="reg-form">
+        <div class="form-group full"><label class="lbl">Nombre y apellidos</label>
+          <input type="text" id="r-nombre" placeholder="Nombre completo"></div>
+        <div class="form-group"><label class="lbl">Teléfono</label>
+          <input type="tel" id="r-tel" placeholder="600 000 000"></div>
+        <div class="form-group"><label class="lbl">E-mail</label>
+          <input type="email" id="r-email" placeholder="correo@ejemplo.com"></div>
+        <div class="form-group"><label class="lbl">Fecha de nacimiento</label>
+          <input type="date" id="r-nac"></div>
+        <div class="form-group"><label class="lbl">Sexo</label>
+          <select id="r-sexo"><option value="">Seleccionar</option><option>Hombre</option><option>Mujer</option><option>Otro</option></select></div>
+      </div>
+      <div class="section-sep">Experiencia previa</div>
+      <div class="checkbox-row" id="exp-checks">
+        <div onclick="tog(this)">Almacén / logística</div>
+        <div onclick="tog(this)">Picking</div>
+        <div onclick="tog(this)">Packing / doblado</div>
+        <div onclick="tog(this)">Ubicado</div>
+        <div onclick="tog(this)">Carretillero/a</div>
+      </div>
+      <div class="section-sep">Disponibilidad</div>
+      <div class="checkbox-row" id="disp-checks">
+        <div onclick="tog(this)">Mañana</div>
+        <div onclick="tog(this)">Tarde</div>
+        <div onclick="tog(this)">Noche</div>
+        <div onclick="tog(this)">Rotativos</div>
+        <div onclick="tog(this)">Fin de semana</div>
+        <div onclick="tog(this)">Jornada completa</div>
+      </div>
+      <div class="section-sep">Movilidad</div>
+      <div class="checkbox-row" id="mov-checks">
+        <div onclick="tog(this)">Vehículo propio</div>
+        <div onclick="tog(this)">Pueden traerme</div>
+      </div>
+    </div>
+  </div>
+  <div class="nav-footer">
+    <button class="btn btn-ghost" onclick="go('sc-welcome')">‹ Atrás</button>
+    <button class="btn btn-primary" onclick="showPreStart()">Siguiente ›</button>
+  </div>
+</div>
+
+<!-- ══════════════ PRE-START ══════════════ -->
+<div id="sc-pre-start" class="screen">
+  <div style="flex:1;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#eef2ff 0%,#f0f5ff 60%,#ffffff 100%)">
+    <div style="max-width:560px;width:100%;text-align:center;padding:32px 24px">
+
+      <img src="img/logo-color.png" style="height:72px;width:auto;margin-bottom:28px" alt="Attitude" onerror="this.style.display='none'">
+
+      <h2 id="pre-start-nombre" style="font-size:1.6rem;font-weight:800;color:var(--text);margin-bottom:8px"></h2>
+      <p style="font-size:.95rem;color:#374151;line-height:1.65;margin-bottom:28px">
+        Gracias por participar en esta dinámica de selección.<br>
+        Tu esfuerzo y dedicación son muy valorados por el equipo de <strong>Attitude &amp; Hiring</strong> y <strong>RMT Logistics</strong>.
+      </p>
+
+      <div style="background:#fff;border:2px solid var(--blue-mid);border-radius:14px;padding:22px 24px;margin-bottom:28px;text-align:left">
+        <div style="font-size:1.1rem;margin-bottom:10px;text-align:center">📖</div>
+        <h3 style="font-size:1rem;font-weight:800;color:var(--text);margin-bottom:10px;text-align:center">Antes de empezar, lee esto con atención</h3>
+        <ul style="margin:0;padding-left:20px;font-size:.88rem;color:#374151;line-height:1.7">
+          <li>Antes de cada prueba verás una pantalla de <strong>instrucciones con un ejemplo visual</strong>.</li>
+          <li><strong>Tómate todo el tiempo que necesites</strong> para leer y entender qué se te pide — el cronómetro <u>no empieza</u> hasta que tú pulses el botón de empezar.</li>
+          <li>Una vez que arranques la prueba, el tiempo correrá y no podrás pausarlo.</li>
+          <li>Es mejor dedicar un minuto a entender bien la tarea que lanzarse sin leer y cometer errores.</li>
+        </ul>
+      </div>
+
+      <p style="font-size:.82rem;color:var(--text3);margin-bottom:24px">¿Preparado/a? Pulsa el botón para ver las instrucciones de la primera prueba.</p>
+
+      <button class="btn btn-primary btn-lg" onclick="startInstrPicking()" style="width:100%;max-width:320px">Ver instrucciones · Estación 1 ›</button>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ INSTR PICKING ══════════════ -->
+<div id="sc-inst-picking" class="screen">
+  <div class="topbar">
+    <div class="topbar-logos">
+      <img src="img/logo-color.png" class="topbar-logo" alt="Attitude" onerror="this.style.display='none'">
+      <span class="topbar-x">×</span>
+      <img src="img/logo-rmt.jpeg" class="topbar-logo" alt="RMT Logistics" onerror="this.style.display='none'">
+    </div>
+    <h2>Estación 1 – Picking</h2>
+    <div class="topbar-badge">INSTRUCCIONES</div>
+    <div class="spacer"></div><span style="color:var(--text3);font-size:.8rem">2 / 5</span>
+  </div>
+  <div class="prog-bar"><div class="prog-fill" style="width:40%"></div></div>
+  <div class="body-scroll">
+    <div class="body-wide">
+
+      <div style="text-align:center;margin-bottom:10px">
+        <img src="img/PICKING.png" style="height:80px;width:auto;border-radius:10px;object-fit:contain;display:block;margin:0 auto">
+      </div>
+      <!-- Cómo jugar: PRIMERO -->
+      <div class="card card-blue" style="margin-bottom:10px;padding:10px 14px">
+        <h3 style="margin-bottom:6px">✅ ¿Cómo funciona la prueba?</h3>
+        <ul style="margin:0;padding-left:18px;font-size:.84rem;line-height:1.45">
+          <li>En el <strong>lado izquierdo</strong> tendrás tu <strong>hoja de pedido</strong> con los artículos y su ubicación exacta.</li>
+          <li>En el <strong>lado derecho</strong> verás el <strong>almacén virtual</strong> — haz clic sobre la tarjeta del artículo correcto.</li>
+          <li>Si un artículo pide <strong>2 unidades</strong>, haz clic <strong>dos veces</strong>.</li>
+          <li>Tienes <strong>3 minutos</strong>. Cuando acabes, pulsa "Finalizar picking".</li>
+        </ul>
+        <p style="margin-top:8px;font-size:.84rem;border-top:1px solid var(--border);padding-top:7px;margin-bottom:0">Si estás listo/a para empezar la prueba, selecciona <strong>Empezar Picking</strong>. ¡Buena suerte! 💪</p>
+      </div>
+
+      <!-- Intro visual: hoja pedido + almacén -->
+      <div style="display:grid;grid-template-columns:2fr 3fr;gap:12px;margin-bottom:4px;max-height:460px;overflow:hidden" class="inst-pick-grid">
+
+        <!-- Izquierda: hoja de pedido real -->
+        <div style="display:flex;flex-direction:column">
+          <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:6px;text-align:center">📋 Ejemplo hoja pedido</div>
+          <img id="inst-pedido-ejemplo" src="img/pedido_1.png" style="width:100%;max-width:523px;max-height:529px;object-fit:contain;border-radius:10px;display:block;margin:0 auto;box-shadow:0 2px 12px rgba(20,71,230,.12)">
+        </div>
+
+        <!-- Derecha: vista del almacén -->
+        <div style="display:flex;flex-direction:column">
+          <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:6px;text-align:center">🏭 Ejemplo almacén virtual</div>
+          <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:6px;box-shadow:0 2px 12px rgba(20,71,230,.12);text-align:left">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+
+              <!-- A -->
+              <div style="border:2px solid var(--border);border-radius:6px;overflow:hidden">
+                <div style="background:#fce7f3;padding:3px 7px;font-size:.76rem;font-weight:800;text-transform:uppercase">Pasillo A – Animales</div>
+                <div style="margin:3px">
+                  <div style="font-size:.71rem;background:#e8eeff;padding:1px 4px;border-radius:2px;font-weight:700;margin-bottom:2px">Ubic. 11</div>
+                  <div style="border-top:2px solid #f97316;background:rgba(249,115,22,.08);padding:2px 4px;display:flex;gap:2px;flex-wrap:wrap;align-items:center;margin-bottom:1px"><span style="font-size:.68rem;color:#c2410c;font-weight:800;margin-right:2px;white-space:nowrap">Alt.2</span>
+                    <span style="background:#ffedd5;border:1px solid #fdba74;border-radius:2px;padding:1px 4px;font-size:.72rem;font-weight:600;color:#111827">León</span>
+                    <span style="background:#ffedd5;border:1px solid #fdba74;border-radius:2px;padding:1px 4px;font-size:.72rem;font-weight:600;color:#111827">Jirafa</span>
+                    <span style="background:#ffedd5;border:1px solid #fdba74;border-radius:2px;padding:1px 4px;font-size:.72rem;font-weight:600;color:#111827">Mono</span>
+                  </div>
+                  <div style="border-top:2px solid #3b82f6;background:rgba(59,130,246,.08);padding:2px 4px;display:flex;gap:2px;flex-wrap:wrap;align-items:center"><span style="font-size:.68rem;color:#1d4ed8;font-weight:800;margin-right:2px;white-space:nowrap">Alt.1</span>
+                    <span style="background:#dbeafe;border:1px solid #93c5fd;border-radius:2px;padding:1px 4px;font-size:.72rem;font-weight:600;color:#111827">Perro</span>
+                    <span style="background:#dbeafe;border:1px solid #93c5fd;border-radius:2px;padding:1px 4px;font-size:.72rem;font-weight:600;color:#111827">Tigre</span>
+                    <span style="background:#dbeafe;border:1px solid #93c5fd;border-radius:2px;padding:1px 4px;font-size:.72rem;font-weight:600;color:#111827">Gato</span>
+                  </div>
+                </div>
+                <div style="margin:3px">
+                  <div style="font-size:.71rem;background:#e8eeff;padding:1px 4px;border-radius:2px;font-weight:700;margin-bottom:2px">Ubic. 21</div>
+                  <div style="border-top:2px solid #f97316;background:rgba(249,115,22,.08);padding:2px 4px;display:flex;gap:2px;flex-wrap:wrap;align-items:center;margin-bottom:1px"><span style="font-size:.68rem;color:#c2410c;font-weight:800;margin-right:2px;white-space:nowrap">Alt.2</span>
+                    <span style="background:#ffedd5;border:1px solid #fdba74;border-radius:2px;padding:1px 4px;font-size:.72rem;font-weight:600;color:#111827">Tigre</span>
+                    <span style="background:#ffedd5;border:1px solid #fdba74;border-radius:2px;padding:1px 4px;font-size:.72rem;font-weight:600;color:#111827">Perro</span>
+                  </div>
+                  <div style="border-top:2px solid #3b82f6;background:rgba(59,130,246,.08);padding:2px 4px;display:flex;gap:2px;flex-wrap:wrap;align-items:center"><span style="font-size:.68rem;color:#1d4ed8;font-weight:800;margin-right:2px;white-space:nowrap">Alt.1</span>
+                    <span style="background:#dbeafe;border:1px solid #93c5fd;border-radius:2px;padding:1px 4px;font-size:.72rem;font-weight:600;color:#111827">Mono</span>
+                    <span style="background:#dbeafe;border:1px solid #93c5fd;border-radius:2px;padding:1px 4px;font-size:.72rem;font-weight:600;color:#111827">León</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- B -->
+              <div style="border:2px solid var(--border);border-radius:6px;overflow:hidden">
+                <div style="background:#ede9fe;padding:3px 7px;font-size:.76rem;font-weight:800;text-transform:uppercase">Pasillo B – Transportes</div>
+                <div style="margin:3px">
+                  <div style="font-size:.71rem;background:#e8eeff;padding:1px 4px;border-radius:2px;font-weight:700;margin-bottom:2px">Ubic. 11</div>
+                  <div style="border-top:2px solid #f97316;background:rgba(249,115,22,.08);padding:2px 4px;display:flex;gap:2px;flex-wrap:wrap;align-items:center;margin-bottom:1px"><span style="font-size:.68rem;color:#c2410c;font-weight:800;margin-right:2px;white-space:nowrap">Alt.2</span>
+                    <span style="background:#ffedd5;border:1px solid #fdba74;border-radius:2px;padding:1px 4px;font-size:.72rem;font-weight:600;color:#111827">Barco</span>
+                    <span style="background:#ffedd5;border:1px solid #fdba74;border-radius:2px;padding:1px 4px;font-size:.72rem;font-weight:600;color:#111827">Avión</span>
+                    <span style="background:#ffedd5;border:1px solid #fdba74;border-radius:2px;padding:1px 4px;font-size:.72rem;font-weight:600;color:#111827">Helicóptero</span>
+                  </div>
+                  <div style="border-top:2px solid #3b82f6;background:rgba(59,130,246,.08);padding:2px 4px;display:flex;gap:2px;flex-wrap:wrap;align-items:center"><span style="font-size:.68rem;color:#1d4ed8;font-weight:800;margin-right:2px;white-space:nowrap">Alt.1</span>
+                    <span style="background:#dbeafe;border:1px solid #93c5fd;border-radius:2px;padding:1px 4px;font-size:.72rem;font-weight:600;color:#111827">Coche</span>
+                    <span style="background:#dbeafe;border:1px solid #93c5fd;border-radius:2px;padding:1px 4px;font-size:.72rem;font-weight:600;color:#111827">Camión</span>
+                    <span style="background:#dbeafe;border:1px solid #93c5fd;border-radius:2px;padding:1px 4px;font-size:.72rem;font-weight:600;color:#111827">Tractor</span>
+                  </div>
+                </div>
+                <div style="margin:3px">
+                  <div style="font-size:.71rem;background:#e8eeff;padding:1px 4px;border-radius:2px;font-weight:700;margin-bottom:2px">Ubic. 12</div>
+                  <div style="border-top:2px solid #f97316;background:rgba(249,115,22,.08);padding:2px 4px;display:flex;gap:2px;flex-wrap:wrap;align-items:center;margin-bottom:1px"><span style="font-size:.68rem;color:#c2410c;font-weight:800;margin-right:2px;white-space:nowrap">Alt.2</span>
+                    <span style="background:#ffedd5;border:1px solid #fdba74;border-radius:2px;padding:1px 4px;font-size:.72rem;font-weight:600;color:#111827">Avión</span>
+                    <span style="background:#ffedd5;border:1px solid #fdba74;border-radius:2px;padding:1px 4px;font-size:.72rem;font-weight:600;color:#111827">Barco</span>
+                  </div>
+                  <div style="border-top:2px solid #3b82f6;background:rgba(59,130,246,.08);padding:2px 4px;display:flex;gap:2px;flex-wrap:wrap;align-items:center"><span style="font-size:.68rem;color:#1d4ed8;font-weight:800;margin-right:2px;white-space:nowrap">Alt.1</span>
+                    <span style="background:#dbeafe;border:1px solid #93c5fd;border-radius:2px;padding:1px 4px;font-size:.72rem;font-weight:600;color:#111827">Avión</span>
+                    <span style="background:#dbeafe;border:1px solid #93c5fd;border-radius:2px;padding:1px 4px;font-size:.72rem;font-weight:600;color:#111827">Tractor</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- C -->
+              <div style="border:2px solid var(--border);border-radius:6px;overflow:hidden">
+                <div style="background:#dcfce7;padding:3px 7px;font-size:.76rem;font-weight:800;text-transform:uppercase">Pasillo C – Comida</div>
+                <div style="margin:3px">
+                  <div style="font-size:.71rem;background:#e8eeff;padding:1px 4px;border-radius:2px;font-weight:700;margin-bottom:2px">Ubic. 11</div>
+                  <div style="border-top:2px solid #f97316;background:rgba(249,115,22,.08);padding:2px 4px;display:flex;gap:2px;flex-wrap:wrap;align-items:center;margin-bottom:1px"><span style="font-size:.68rem;color:#c2410c;font-weight:800;margin-right:2px;white-space:nowrap">Alt.2</span>
+                    <span style="background:#ffedd5;border:1px solid #fdba74;border-radius:2px;padding:1px 4px;font-size:.72rem;font-weight:600;color:#111827">Pizza</span>
+                    <span style="background:#ffedd5;border:1px solid #fdba74;border-radius:2px;padding:1px 4px;font-size:.72rem;font-weight:600;color:#111827">Donut</span>
+                    <span style="background:#ffedd5;border:1px solid #fdba74;border-radius:2px;padding:1px 4px;font-size:.72rem;font-weight:600;color:#111827">Hamburguesa</span>
+                  </div>
+                  <div style="border-top:2px solid #3b82f6;background:rgba(59,130,246,.08);padding:2px 4px;display:flex;gap:2px;flex-wrap:wrap;align-items:center"><span style="font-size:.68rem;color:#1d4ed8;font-weight:800;margin-right:2px;white-space:nowrap">Alt.1</span>
+                    <span style="background:#dbeafe;border:1px solid #93c5fd;border-radius:2px;padding:1px 4px;font-size:.72rem;font-weight:600;color:#111827">Zanahoria</span>
+                    <span style="background:#dbeafe;border:1px solid #93c5fd;border-radius:2px;padding:1px 4px;font-size:.72rem;font-weight:600;color:#111827">Plátano</span>
+                    <span style="background:#dbeafe;border:1px solid #93c5fd;border-radius:2px;padding:1px 4px;font-size:.72rem;font-weight:600;color:#111827">Pan</span>
+                  </div>
+                </div>
+                <div style="margin:3px">
+                  <div style="font-size:.71rem;background:#e8eeff;padding:1px 4px;border-radius:2px;font-weight:700;margin-bottom:2px">Ubic. 21</div>
+                  <div style="border-top:2px solid #f97316;background:rgba(249,115,22,.08);padding:2px 4px;display:flex;gap:2px;flex-wrap:wrap;align-items:center;margin-bottom:1px"><span style="font-size:.68rem;color:#c2410c;font-weight:800;margin-right:2px;white-space:nowrap">Alt.2</span>
+                    <span style="background:#ffedd5;border:1px solid #fdba74;border-radius:2px;padding:1px 4px;font-size:.72rem;font-weight:600;color:#111827">Pan</span>
+                    <span style="background:#ffedd5;border:1px solid #fdba74;border-radius:2px;padding:1px 4px;font-size:.72rem;font-weight:600;color:#111827">Hamburguesa</span>
+                  </div>
+                  <div style="border-top:2px solid #3b82f6;background:rgba(59,130,246,.08);padding:2px 4px;display:flex;gap:2px;flex-wrap:wrap;align-items:center"><span style="font-size:.68rem;color:#1d4ed8;font-weight:800;margin-right:2px;white-space:nowrap">Alt.1</span>
+                    <span style="background:#dbeafe;border:1px solid #93c5fd;border-radius:2px;padding:1px 4px;font-size:.72rem;font-weight:600;color:#111827">Pan</span>
+                    <span style="background:#dbeafe;border:1px solid #93c5fd;border-radius:2px;padding:1px 4px;font-size:.72rem;font-weight:600;color:#111827">Manzana</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- D -->
+              <div style="border:2px solid var(--border);border-radius:6px;overflow:hidden">
+                <div style="background:#fef9c3;padding:3px 7px;font-size:.76rem;font-weight:800;text-transform:uppercase">Pasillo D – Ropa</div>
+                <div style="margin:3px">
+                  <div style="font-size:.71rem;background:#e8eeff;padding:1px 4px;border-radius:2px;font-weight:700;margin-bottom:2px">Ubic. 11</div>
+                  <div style="border-top:2px solid #f97316;background:rgba(249,115,22,.08);padding:2px 4px;display:flex;gap:2px;flex-wrap:wrap;align-items:center;margin-bottom:1px"><span style="font-size:.68rem;color:#c2410c;font-weight:800;margin-right:2px;white-space:nowrap">Alt.2</span>
+                    <span style="background:#ffedd5;border:1px solid #fdba74;border-radius:2px;padding:1px 4px;font-size:.72rem;font-weight:600;color:#111827">Vestido</span>
+                    <span style="background:#ffedd5;border:1px solid #fdba74;border-radius:2px;padding:1px 4px;font-size:.72rem;font-weight:600;color:#111827">Zapatilla</span>
+                  </div>
+                  <div style="border-top:2px solid #3b82f6;background:rgba(59,130,246,.08);padding:2px 4px;display:flex;gap:2px;flex-wrap:wrap;align-items:center"><span style="font-size:.68rem;color:#1d4ed8;font-weight:800;margin-right:2px;white-space:nowrap">Alt.1</span>
+                    <span style="background:#dbeafe;border:1px solid #93c5fd;border-radius:2px;padding:1px 4px;font-size:.72rem;font-weight:600;color:#111827">Chaleco</span>
+                    <span style="background:#dbeafe;border:1px solid #93c5fd;border-radius:2px;padding:1px 4px;font-size:.72rem;font-weight:600;color:#111827">Camiseta</span>
+                    <span style="background:#dbeafe;border:1px solid #93c5fd;border-radius:2px;padding:1px 4px;font-size:.72rem;font-weight:600;color:#111827">Pantalón</span>
+                  </div>
+                </div>
+                <div style="margin:3px">
+                  <div style="font-size:.71rem;background:#e8eeff;padding:1px 4px;border-radius:2px;font-weight:700;margin-bottom:2px">Ubic. 21</div>
+                  <div style="border-top:2px solid #f97316;background:rgba(249,115,22,.08);padding:2px 4px;display:flex;gap:2px;flex-wrap:wrap;align-items:center;margin-bottom:1px"><span style="font-size:.68rem;color:#c2410c;font-weight:800;margin-right:2px;white-space:nowrap">Alt.2</span>
+                    <span style="background:#ffedd5;border:1px solid #fdba74;border-radius:2px;padding:1px 4px;font-size:.72rem;font-weight:600;color:#111827">Chaleco</span>
+                    <span style="background:#ffedd5;border:1px solid #fdba74;border-radius:2px;padding:1px 4px;font-size:.72rem;font-weight:600;color:#111827">Vestido</span>
+                  </div>
+                  <div style="border-top:2px solid #3b82f6;background:rgba(59,130,246,.08);padding:2px 4px;display:flex;gap:2px;flex-wrap:wrap;align-items:center"><span style="font-size:.68rem;color:#1d4ed8;font-weight:800;margin-right:2px;white-space:nowrap">Alt.1</span>
+                    <span style="background:#dbeafe;border:1px solid #93c5fd;border-radius:2px;padding:1px 4px;font-size:.72rem;font-weight:600;color:#111827">Camiseta</span>
+                    <span style="background:#dbeafe;border:1px solid #93c5fd;border-radius:2px;padding:1px 4px;font-size:.72rem;font-weight:600;color:#111827">Sudadera</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- E (ocupa las dos columnas) -->
+              <div style="border:2px solid var(--border);border-radius:6px;overflow:hidden;grid-column:1/-1">
+                <div style="background:#f3e8ff;padding:3px 7px;font-size:.76rem;font-weight:800;text-transform:uppercase">Pasillo E – Deporte</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:0">
+                  <div style="margin:3px">
+                    <div style="font-size:.71rem;background:#e8eeff;padding:1px 4px;border-radius:2px;font-weight:700;margin-bottom:2px">Ubic. 11</div>
+                    <div style="border-top:2px solid #f97316;background:rgba(249,115,22,.08);padding:2px 4px;display:flex;gap:2px;flex-wrap:wrap;align-items:center;margin-bottom:1px"><span style="font-size:.68rem;color:#c2410c;font-weight:800;margin-right:2px;white-space:nowrap">Alt.2</span>
+                      <span style="background:#ffedd5;border:1px solid #fdba74;border-radius:2px;padding:1px 4px;font-size:.72rem;font-weight:600;color:#111827">Skate</span>
+                      <span style="background:#ffedd5;border:1px solid #fdba74;border-radius:2px;padding:1px 4px;font-size:.72rem;font-weight:600;color:#111827">Basket</span>
+                      <span style="background:#ffedd5;border:1px solid #fdba74;border-radius:2px;padding:1px 4px;font-size:.72rem;font-weight:600;color:#111827">Boxeo</span>
+                    </div>
+                    <div style="border-top:2px solid #3b82f6;background:rgba(59,130,246,.08);padding:2px 4px;display:flex;gap:2px;flex-wrap:wrap;align-items:center"><span style="font-size:.68rem;color:#1d4ed8;font-weight:800;margin-right:2px;white-space:nowrap">Alt.1</span>
+                      <span style="background:#dbeafe;border:1px solid #93c5fd;border-radius:2px;padding:1px 4px;font-size:.72rem;font-weight:600;color:#111827">Fútbol</span>
+                      <span style="background:#dbeafe;border:1px solid #93c5fd;border-radius:2px;padding:1px 4px;font-size:.72rem;font-weight:600;color:#111827">Tenis</span>
+                      <span style="background:#dbeafe;border:1px solid #93c5fd;border-radius:2px;padding:1px 4px;font-size:.72rem;font-weight:600;color:#111827">Bádminton</span>
+                    </div>
+                  </div>
+                  <div style="margin:3px">
+                    <div style="font-size:.71rem;background:#e8eeff;padding:1px 4px;border-radius:2px;font-weight:700;margin-bottom:2px">Ubic. 21</div>
+                    <div style="border-top:2px solid #f97316;background:rgba(249,115,22,.08);padding:2px 4px;display:flex;gap:2px;flex-wrap:wrap;align-items:center;margin-bottom:1px"><span style="font-size:.68rem;color:#c2410c;font-weight:800;margin-right:2px;white-space:nowrap">Alt.2</span>
+                      <span style="background:#ffedd5;border:1px solid #fdba74;border-radius:2px;padding:1px 4px;font-size:.72rem;font-weight:600;color:#111827">Skate</span>
+                      <span style="background:#ffedd5;border:1px solid #fdba74;border-radius:2px;padding:1px 4px;font-size:.72rem;font-weight:600;color:#111827">Bádminton</span>
+                    </div>
+                    <div style="border-top:2px solid #3b82f6;background:rgba(59,130,246,.08);padding:2px 4px;display:flex;gap:2px;flex-wrap:wrap;align-items:center"><span style="font-size:.68rem;color:#1d4ed8;font-weight:800;margin-right:2px;white-space:nowrap">Alt.1</span>
+                      <span style="background:#dbeafe;border:1px solid #93c5fd;border-radius:2px;padding:1px 4px;font-size:.72rem;font-weight:600;color:#111827">Basket</span>
+                      <span style="background:#dbeafe;border:1px solid #93c5fd;border-radius:2px;padding:1px 4px;font-size:.72rem;font-weight:600;color:#111827">Fútbol</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bloque alturas compacto -->
+      <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+        <div style="background:#ffedd5;border:2px solid #f97316;border-radius:8px;padding:5px 14px;text-align:center;flex:1;min-width:100px;display:flex;align-items:center;justify-content:center;gap:8px">
+          <span style="font-size:1rem;font-weight:900;color:#111827">NARANJA</span>
+          <span style="font-size:.78rem;font-weight:700;color:#111827">= Altura 2 ▲</span>
+        </div>
+        <div style="background:#dbeafe;border:2px solid #3b82f6;border-radius:8px;padding:5px 14px;text-align:center;flex:1;min-width:100px;display:flex;align-items:center;justify-content:center;gap:8px">
+          <span style="font-size:1rem;font-weight:900;color:#111827">AZUL</span>
+          <span style="font-size:.78rem;font-weight:700;color:#111827">= Altura 1 ▼</span>
+        </div>
+      </div>
+
+      <div style="text-align:center;margin-top:6px;margin-bottom:12px">
+        <button class="btn btn-primary btn-lg" onclick="confirmStart(startPicking)">▶ Empezar Picking</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ PICKING ══════════════ -->
+<div id="sc-picking" class="screen">
+  <div class="topbar">
+    <h2>🗂️ Picking – Almacén Virtual</h2>
+    <div class="spacer"></div>
+    <div id="t-picking" class="timer">3:00</div>
+  </div>
+  <div class="picking-layout">
+    <div class="picking-sidebar">
+      <div class="pedido-img-wrap">
+        <img id="pedido-img" src="" alt="Hoja de pedido">
+      </div>
+      <div class="pedido-stats">
+        <div class="stat-box"><div class="stat-n" id="picks-ok">0</div><div class="stat-l">Picks ✓</div></div>
+        <div class="stat-box"><div class="stat-n" id="picks-err">0</div><div class="stat-l">Errores</div></div>
+        <div class="stat-box"><div class="stat-n" id="picks-tot">0/6</div><div class="stat-l">Progreso</div></div>
+      </div>
+      <div style="padding:0 12px 4px">
+        <button class="btn btn-ghost btn-sm" onclick="recordarAlturas()" style="width:100%;font-size:.75rem">🔍 Recordar alturas <span style="color:var(--red);font-weight:700">−10s</span></button>
+      </div>
+      <div style="padding:0 12px 12px">
+        <button class="btn btn-success" id="btn-end-pick" disabled onclick="endPicking()" style="width:100%">✓ Finalizar Picking</button>
+      </div>
+    </div>
+    <div class="picking-main">
+      <div class="warehouse" id="warehouse"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ INSTR PTL ══════════════ -->
+<div id="sc-inst-ptl" class="screen">
+  <div class="topbar">
+    <div class="topbar-logos">
+      <img src="img/logo-color.png" class="topbar-logo" alt="Attitude" onerror="this.style.display='none'">
+      <span class="topbar-x">×</span>
+      <img src="img/logo-rmt.jpeg" class="topbar-logo" alt="RMT Logistics" onerror="this.style.display='none'">
+    </div>
+    <h2>Estación 2 – PTL</h2>
+    <div class="topbar-badge">INSTRUCCIONES</div>
+    <div class="spacer"></div><span style="color:var(--text3);font-size:.8rem">2 / 5</span>
+  </div>
+  <div class="prog-bar"><div class="prog-fill" style="width:40%"></div></div>
+  <div class="body-scroll">
+    <div class="body-center">
+      <div style="text-align:center;margin-bottom:8px">
+        <img src="img/PTL.png" style="height:80px;width:auto;border-radius:10px;object-fit:contain;display:block;margin:0 auto">
+      </div>
+      <div class="card card-blue" style="padding:10px 14px;margin-bottom:10px">
+        <h3 style="margin-bottom:6px">¿Qué tienes que hacer?</h3>
+        <ul style="margin:0;padding-left:18px;font-size:.84rem;line-height:1.45">
+          <li>Tienes una caja con tarjetas de colores mezcladas.</li>
+          <li>Debes formar <strong>secuencias</strong> siguiendo siempre este orden exacto:</li>
+        </ul>
+        <div style="display:flex;gap:6px;justify-content:center;margin:8px 0;flex-wrap:wrap">
+          <span style="background:#3b82f6;color:#fff;padding:4px 10px;border-radius:6px;font-weight:800;font-size:.84rem">AZUL</span>
+          <span style="color:#374151;padding:2px">→</span>
+          <span style="background:#ef4444;color:#fff;padding:4px 10px;border-radius:6px;font-weight:800;font-size:.84rem">ROJO</span>
+          <span style="color:#374151;padding:2px">→</span>
+          <span style="background:#eab308;color:#1e293b;padding:4px 10px;border-radius:6px;font-weight:800;font-size:.84rem">AMARILLO</span>
+          <span style="color:#374151;padding:2px">→</span>
+          <span style="background:#22c55e;color:#fff;padding:4px 10px;border-radius:6px;font-weight:800;font-size:.84rem">VERDE</span>
+        </div>
+        <ul style="margin:0;padding-left:18px;font-size:.84rem;line-height:1.45">
+          <li>Haz clic en las tarjetas <strong>en orden</strong>. Cada 4 forman una secuencia completa.</li>
+          <li>Las tarjetas <strong>blancas y negras son incidencias</strong>: haz clic en ellas para añadirlas a un <strong>sobre aparte</strong> — el orden no importa.</li>
+          <li>Tienes <strong>3 minutos</strong>.</li>
+        </ul>
+      </div>
+      <!-- Ejemplo visual PTL -->
+      <div style="margin-top:10px;margin-bottom:8px">
+        <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);text-align:center;margin-bottom:8px">🃏 Ejemplo visual de la prueba</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+
+          <!-- Izquierda: pool de tarjetas -->
+          <div>
+            <div style="font-size:.7rem;font-weight:700;color:#374151;margin-bottom:5px;text-align:center">La caja de tarjetas</div>
+            <div class="ptl-pool" style="min-height:70px;padding:8px;gap:5px">
+              <div class="ptl-card c-rojo"></div>
+              <div class="ptl-card c-azul"></div>
+              <div class="ptl-card c-verde"></div>
+              <div class="ptl-card c-amarillo"></div>
+              <div class="ptl-card c-blanco" style="border:2px solid #d1d5db"></div>
+              <div class="ptl-card c-azul"></div>
+              <div class="ptl-card c-rojo"></div>
+              <div class="ptl-card c-negro" style="border:2px solid #374151"></div>
+              <div class="ptl-card c-amarillo"></div>
+              <div class="ptl-card c-verde"></div>
+            </div>
+            <div style="font-size:.68rem;color:#6b7280;margin-top:4px;text-align:center">Haz clic en orden: <strong>Azul→Rojo→Amarillo→Verde</strong></div>
+          </div>
+
+          <!-- Derecha: secuencia completada + incidencia -->
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div>
+              <div style="font-size:.7rem;font-weight:700;color:#374151;margin-bottom:5px;text-align:center">✅ Secuencia completada</div>
+              <div style="display:flex;gap:5px;justify-content:center">
+                <div class="mini-card c-azul"></div>
+                <div class="mini-card c-rojo"></div>
+                <div class="mini-card c-amarillo"></div>
+                <div class="mini-card c-verde"></div>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:.7rem;font-weight:700;color:#374151;margin-bottom:5px;text-align:center">⚠️ Incidencia al sobre</div>
+              <div style="display:flex;gap:5px;justify-content:center">
+                <div class="mini-card c-blanco" style="border:2px solid #d1d5db"></div>
+                <div class="mini-card c-negro" style="border:2px solid #374151"></div>
+              </div>
+              <div style="font-size:.65rem;color:#6b7280;margin-top:3px;text-align:center">Blancas y negras = incidencias</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div style="text-align:center;margin-top:16px;margin-bottom:12px">
+        <button class="btn btn-primary btn-lg" onclick="confirmStart(startPTL)">▶ Empezar PTL</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ PTL ══════════════ -->
+<div id="sc-ptl" class="screen">
+  <div class="topbar">
+    <h2>🃏 PTL – Secuencias de color</h2>
+    <div class="spacer"></div>
+    <div id="next-badge" class="next-badge">Siguiente: AZUL</div>
+    <div style="width:12px"></div>
+    <div id="t-ptl" class="timer">3:00</div>
+  </div>
+  <div class="body-scroll">
+    <div class="body-wide">
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px">
+        <div class="stat-box" style="background:var(--navy2);border:1px solid var(--border);border-radius:8px;padding:10px 16px;flex:1">
+          <div class="stat-n" id="ptl-seqs">0</div><div class="stat-l">Secuencias completas</div></div>
+        <div class="stat-box" style="background:var(--navy2);border:1px solid var(--border);border-radius:8px;padding:10px 16px;flex:1">
+          <div class="stat-n" id="ptl-incs">0</div><div class="stat-l">Incidencias gestionadas</div></div>
+      </div>
+      <div class="card" style="margin-bottom:14px">
+        <h3 style="font-size:.8rem;color:#374151;margin-bottom:10px">TARJETAS EN LA CAJA – Haz clic en orden: Azul → Rojo → Amarillo → Verde</h3>
+        <div class="ptl-pool" id="ptl-pool"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div>
+          <div style="font-size:.72rem;color:#374151;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">✅ Secuencias completadas</div>
+          <div class="seq-row" id="ptl-seq-area"></div>
+        </div>
+        <div>
+          <div style="font-size:.72rem;color:#374151;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">⚠️ Sobre de incidencias</div>
+          <div class="inc-row" id="ptl-inc-area"></div>
+        </div>
+      </div>
+      <div style="margin-top:16px">
+        <button class="btn btn-success" onclick="endPTL()">✓ Finalizar PTL</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ INSTR PACKING ══════════════ -->
+<div id="sc-inst-packing" class="screen">
+  <div class="topbar">
+    <div class="topbar-logos">
+      <img src="img/logo-color.png" class="topbar-logo" alt="Attitude" onerror="this.style.display='none'">
+      <span class="topbar-x">×</span>
+      <img src="img/logo-rmt.jpeg" class="topbar-logo" alt="RMT Logistics" onerror="this.style.display='none'">
+    </div>
+    <h2>Estación 3 – Packing</h2>
+    <div class="topbar-badge">INSTRUCCIONES</div>
+    <div class="spacer"></div><span style="color:var(--text3);font-size:.8rem">3 / 5</span>
+  </div>
+  <div class="prog-bar"><div class="prog-fill" style="width:60%"></div></div>
+  <div class="body-scroll" style="padding-top:6px;padding-bottom:6px">
+    <div class="body-center">
+      <div style="text-align:center;margin-bottom:14px">
+        <img src="img/PACKING.png" style="height:80px;width:auto;border-radius:10px;object-fit:contain;display:block;margin:0 auto">
+      </div>
+      <div class="card card-blue" style="padding:8px 12px;margin-bottom:8px">
+        <h3 style="margin-bottom:4px;font-size:.95rem">¿Qué tienes que hacer?</h3>
+        <ul style="margin:0;padding-left:18px;font-size:.82rem;line-height:1.4">
+          <li>Tendrás una <strong>hoja de pedidos</strong> con 3 pedidos, cada uno con sus prendas.</li>
+          <li>Selecciona el sobre según la prenda más grande: <strong>S</strong> (camisetas) · <strong>M</strong> (pantalón/jersey) · <strong>L</strong> (chaqueta/chaleco).</li>
+          <li>Si hay <strong>varias prendas</strong>: elige el sobre de la prenda <strong>más grande</strong>.</li>
+          <li>Tienes <strong>2 minutos</strong>.</li>
+        </ul>
+      </div>
+
+      <!-- Ejemplo visual Packing -->
+      <div style="margin-bottom:4px">
+        <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);text-align:center;margin-bottom:4px">📦 Ejemplo visual de la prueba</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+
+          <!-- Izquierda: hoja de pedidos mock -->
+          <div>
+            <div style="font-size:.68rem;font-weight:700;color:#374151;margin-bottom:3px;text-align:center">📋 Tu hoja de pedidos</div>
+            <div style="background:var(--blue-light);border:1px solid var(--border);border-radius:10px;padding:6px;font-size:.7rem">
+              <div style="font-weight:700;color:var(--orange);font-size:.66rem;text-transform:uppercase;margin-bottom:3px">Pedido 1</div>
+              <div style="display:flex;flex-direction:column;gap:1px;margin-bottom:6px">
+                <span style="background:#fff;border:1px solid var(--border);border-radius:4px;padding:1px 5px;color:#111827">Camiseta × 2</span>
+                <span style="background:#fff;border:1px solid var(--border);border-radius:4px;padding:1px 5px;color:#111827">Pantalón × 1</span>
+              </div>
+              <div style="font-weight:700;color:var(--orange);font-size:.66rem;text-transform:uppercase;margin-bottom:3px">Pedido 2</div>
+              <div style="display:flex;flex-direction:column;gap:1px">
+                <span style="background:#fff;border:1px solid var(--border);border-radius:4px;padding:1px 5px;color:#111827">Camiseta × 1</span>
+                <span style="background:#fff;border:1px solid var(--border);border-radius:4px;padding:1px 5px;color:#111827">Pantalón × 1</span>
+                <span style="background:#fff;border:1px solid var(--border);border-radius:4px;padding:1px 5px;color:#111827">Chaqueta × 1</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Derecha: selección de sobres -->
+          <div>
+            <div style="font-size:.68rem;font-weight:700;color:#374151;margin-bottom:3px;text-align:center">📬 Selecciona el sobre</div>
+            <div style="background:var(--blue-light);border:2px solid #16a34a;border-radius:8px;padding:5px;margin-bottom:5px">
+              <div style="font-size:.68rem;font-weight:700;color:var(--orange);margin-bottom:3px">PEDIDO 1</div>
+              <div class="sobre-opts" style="margin-top:0;gap:4px">
+                <div class="sobre-opt" style="padding:4px 3px">
+                  <div class="sobre-letter" style="font-size:1.1rem">S</div>
+                </div>
+                <div class="sobre-opt sel" style="padding:4px 3px">
+                  <div class="sobre-letter" style="font-size:1.1rem">M</div>
+                </div>
+                <div class="sobre-opt" style="padding:4px 3px">
+                  <div class="sobre-letter" style="font-size:1.1rem">L</div>
+                </div>
+              </div>
+            </div>
+            <div style="background:var(--blue-light);border:2px solid #db2777;border-radius:8px;padding:5px">
+              <div style="font-size:.68rem;font-weight:700;color:var(--orange);margin-bottom:3px">PEDIDO 2</div>
+              <div class="sobre-opts" style="margin-top:0;gap:4px">
+                <div class="sobre-opt" style="padding:4px 3px">
+                  <div class="sobre-letter" style="font-size:1.1rem">S</div>
+                </div>
+                <div class="sobre-opt" style="padding:4px 3px">
+                  <div class="sobre-letter" style="font-size:1.1rem">M</div>
+                </div>
+                <div class="sobre-opt sel" style="padding:4px 3px">
+                  <div class="sobre-letter" style="font-size:1.1rem">L</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div style="text-align:center;margin-top:6px;margin-bottom:8px">
+        <button class="btn btn-primary btn-lg" onclick="confirmStart(startPacking)">▶ Empezar Packing</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ PACKING ══════════════ -->
+<div id="sc-packing" class="screen">
+  <div class="topbar">
+    <h2>📦 Packing – Preparación de pedidos</h2>
+    <div class="spacer"></div>
+    <div id="t-packing" class="timer">5:00</div>
+  </div>
+  <div class="body-scroll">
+    <div class="body-wide">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+        <div>
+          <div style="font-size:.72rem;color:#374151;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">📋 Tu hoja de pedidos</div>
+          <div class="packing-sheet-img"><img id="packing-img" src="" alt="Hoja de pedidos packing"></div>
+        </div>
+        <div>
+          <div style="font-size:.72rem;color:#374151;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">📬 Selecciona el sobre para cada pedido</div>
+          <div id="packing-pedidos"></div>
+          <button class="btn btn-success" onclick="endPacking()" style="margin-top:8px;width:100%">✓ Finalizar Packing</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ INSTR EXP ══════════════ -->
+<div id="sc-inst-exp" class="screen">
+  <div class="topbar">
+    <div class="topbar-logos">
+      <img src="img/logo-color.png" class="topbar-logo" alt="Attitude" onerror="this.style.display='none'">
+      <span class="topbar-x">×</span>
+      <img src="img/logo-rmt.jpeg" class="topbar-logo" alt="RMT Logistics" onerror="this.style.display='none'">
+    </div>
+    <h2>Estación 4 – Expediciones</h2>
+    <div class="topbar-badge">INSTRUCCIONES</div>
+    <div class="spacer"></div><span style="color:var(--text3);font-size:.8rem">4 / 5</span>
+  </div>
+  <div class="prog-bar"><div class="prog-fill" style="width:80%"></div></div>
+  <div class="body-scroll" style="padding-top:8px;padding-bottom:8px">
+    <div class="body-center">
+      <div style="text-align:center;margin-bottom:8px">
+        <img src="img/EXPEDICIONES.png" style="height:80px;width:auto;border-radius:10px;object-fit:contain;display:block;margin:0 auto">
+      </div>
+      <div class="card card-blue" style="padding:8px 12px;margin-bottom:8px">
+        <h3 style="margin-bottom:4px">Prueba 1 – Cinta de clasificación (2 min)</h3>
+        <ul style="margin:0;padding-left:18px;font-size:.82rem;line-height:1.4">
+          <li>A la izquierda verás tu <strong>lista de operadores logísticos</strong> y tu <strong>color asignado</strong> (azul o naranja).</li>
+          <li>A la derecha hay sobres mezclados de ambos colores con nombres de operadores.</li>
+          <li>Solo debes seleccionar los sobres que cumplan <strong>las dos condiciones a la vez</strong>: que el operador aparezca en tu lista <em>y</em> que el sobre sea de tu color.</li>
+          <li>Los sobres del color contrario o que no estén en tu lista son <strong>incorrectos</strong> — no los toques.</li>
+        </ul>
+      </div>
+
+      <!-- Ejemplo visual Cinta -->
+      <div style="margin-bottom:6px">
+        <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);text-align:center;margin-bottom:4px">🚚 Ejemplo visual de la prueba</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+
+          <!-- Izquierda: lista + color asignado -->
+          <div>
+            <div style="font-size:.68rem;font-weight:700;color:#374151;margin-bottom:3px;text-align:center">📋 Tu lista de hoy</div>
+            <div style="background:var(--blue-light);border:1px solid var(--border);border-radius:8px;padding:6px">
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px">
+                <span style="font-size:.68rem;color:#374151">Tu color:</span>
+                <span style="background:#dbeafe;border-left:3px solid #3b82f6;border-radius:4px;padding:2px 8px;font-size:.72rem;font-weight:700;color:#1e40af">AZUL</span>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:2px">
+                <span style="background:#fff;border:1px solid var(--border);border-radius:4px;padding:2px 6px;font-size:.72rem;color:#111827">📦 DHL</span>
+                <span style="background:#fff;border:1px solid var(--border);border-radius:4px;padding:2px 6px;font-size:.72rem;color:#111827">📦 GLS</span>
+                <span style="background:#fff;border:1px solid var(--border);border-radius:4px;padding:2px 6px;font-size:.72rem;color:#111827">📦 SEUR</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Derecha: mesa con sobres mezclados -->
+          <div>
+            <div style="font-size:.68rem;font-weight:700;color:#374151;margin-bottom:3px;text-align:center">📬 Mesa – clic en los correctos</div>
+            <div style="background:rgba(0,0,0,.12);border-radius:8px;border:2px dashed var(--border);padding:6px;display:flex;flex-wrap:wrap;gap:4px">
+              <span class="s-sobre az" style="font-size:.65rem;padding:4px 6px;cursor:default">DHL</span>
+              <span class="s-sobre na" style="font-size:.65rem;padding:4px 6px;cursor:default">MRW</span>
+              <span class="s-sobre az" style="font-size:.65rem;padding:4px 6px;cursor:default;outline:2px solid #4ade80">GLS</span>
+              <span class="s-sobre na" style="font-size:.65rem;padding:4px 6px;cursor:default">FedEx</span>
+              <span class="s-sobre az" style="font-size:.65rem;padding:4px 6px;cursor:default">SEUR</span>
+              <span class="s-sobre na" style="font-size:.65rem;padding:4px 6px;cursor:default">UPS</span>
+            </div>
+            <div style="font-size:.64rem;color:#6b7280;margin-top:3px;text-align:center">Recoge solo los <strong>azules</strong> de tu lista</div>
+          </div>
+
+        </div>
+      </div>
+
+      <div style="text-align:center;margin-top:6px;margin-bottom:4px">
+        <button class="btn btn-primary btn-lg" onclick="confirmStart(startCinta)">▶ Empezar Prueba 1 – Cinta</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ INSTR APILADO ══════════════ -->
+<div id="sc-inst-apilado" class="screen">
+  <div class="topbar">
+    <div class="topbar-logos">
+      <img src="img/logo-color.png" class="topbar-logo" alt="Attitude" onerror="this.style.display='none'">
+      <span class="topbar-x">×</span>
+      <img src="img/logo-rmt.jpeg" class="topbar-logo" alt="RMT Logistics" onerror="this.style.display='none'">
+    </div>
+    <h2>Estación 4 – Expediciones</h2>
+    <div class="topbar-badge">INSTRUCCIONES</div>
+    <div class="spacer"></div><span style="color:var(--text3);font-size:.8rem">4 / 5</span>
+  </div>
+  <div class="prog-bar"><div class="prog-fill" style="width:80%"></div></div>
+  <div class="body-scroll" style="padding-top:8px;padding-bottom:8px">
+    <div class="body-center">
+      <div style="background:#d1fae5;border:1px solid #6ee7b7;border-radius:10px;padding:8px 14px;margin-bottom:8px;text-align:center">
+        <span style="font-size:.85rem;font-weight:700;color:#065f46">✅ Prueba 1 completada — ahora la Prueba 2</span>
+      </div>
+      <div class="card card-blue" style="padding:8px 12px;margin-bottom:8px">
+        <h3 style="margin-bottom:4px">Prueba 2 – Test de apilado (2 min)</h3>
+        <ul style="margin:0;padding-left:18px;font-size:.82rem;line-height:1.4">
+          <li>Se muestran situaciones de <strong>apilado de cajas logísticas</strong>.</li>
+          <li>Observa los diagramas: <strong>G</strong> = caja grande · <strong>M</strong> = mediana · <strong>P</strong> = pequeña.</li>
+          <li>Marca la opción <strong>más segura y estable</strong> en cada ejercicio.</li>
+          <li>4 preguntas · una respuesta correcta cada una.</li>
+        </ul>
+      </div>
+
+      <!-- Ejemplo visual Apilado -->
+      <div style="margin-bottom:6px">
+        <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);text-align:center;margin-bottom:4px">🏗️ Ejemplo visual de la prueba</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+
+          <!-- Izquierda: diagrama ejemplo -->
+          <div>
+            <div style="font-size:.68rem;font-weight:700;color:#374151;margin-bottom:3px;text-align:center">📋 Diagrama de apilado</div>
+            <div style="background:var(--blue-light);border:1px solid var(--border);border-radius:8px;padding:8px;text-align:center">
+              <div style="font-size:.68rem;color:#374151;margin-bottom:6px">¿Cuál es más estable?</div>
+              <div style="display:flex;gap:10px;justify-content:center;align-items:flex-end">
+                <!-- Opción A: grande arriba, pequeña abajo (inestable) -->
+                <div style="text-align:center">
+                  <div style="font-size:.62rem;color:#6b7280;margin-bottom:3px">A</div>
+                  <div style="background:#fca5a5;border:1px solid #f87171;border-radius:3px;width:28px;height:12px;margin:0 auto 2px"></div>
+                  <div style="background:#fca5a5;border:1px solid #f87171;border-radius:3px;width:20px;height:10px;margin:0 auto 2px"></div>
+                  <div style="background:#fca5a5;border:1px solid #f87171;border-radius:3px;width:14px;height:8px;margin:0 auto"></div>
+                  <div style="font-size:.55rem;color:#6b7280;margin-top:2px">G·M·P</div>
+                </div>
+                <!-- Opción B: pequeña arriba, grande abajo (estable) -->
+                <div style="text-align:center">
+                  <div style="font-size:.62rem;color:#6b7280;margin-bottom:3px">B ✅</div>
+                  <div style="background:#86efac;border:1px solid #4ade80;border-radius:3px;width:14px;height:8px;margin:0 auto 2px"></div>
+                  <div style="background:#86efac;border:1px solid #4ade80;border-radius:3px;width:20px;height:10px;margin:0 auto 2px"></div>
+                  <div style="background:#86efac;border:1px solid #4ade80;border-radius:3px;width:28px;height:12px;margin:0 auto"></div>
+                  <div style="font-size:.55rem;color:#6b7280;margin-top:2px">P·M·G</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Derecha: selección de respuesta -->
+          <div>
+            <div style="font-size:.68rem;font-weight:700;color:#374151;margin-bottom:3px;text-align:center">✏️ Tu respuesta</div>
+            <div style="display:flex;flex-direction:column;gap:5px">
+              <div style="border:2px solid #f87171;border-radius:8px;padding:6px 10px;background:#fff;font-size:.78rem;color:#374151;display:flex;align-items:center;gap:6px">
+                <span style="font-size:.9rem">⬜</span> A – G arriba, P abajo
+              </div>
+              <div style="border:2px solid #4ade80;border-radius:8px;padding:6px 10px;background:#f0fdf4;font-size:.78rem;color:#111827;font-weight:700;display:flex;align-items:center;gap:6px">
+                <span style="font-size:.9rem">✅</span> B – P arriba, G abajo
+              </div>
+            </div>
+            <div style="font-size:.64rem;color:#6b7280;margin-top:4px;text-align:center">Las cajas más pesadas van siempre abajo</div>
+          </div>
+
+        </div>
+      </div>
+
+      <div style="text-align:center;margin-top:6px;margin-bottom:4px">
+        <button class="btn btn-primary btn-lg" onclick="confirmStart(startApilado)">▶ Empezar Prueba 2 – Apilado</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ CINTA ══════════════ -->
+<div id="sc-cinta" class="screen">
+  <div class="topbar">
+    <h2>🚚 Cinta de clasificación</h2>
+    <div class="spacer"></div>
+    <div id="color-badge" style="padding:4px 14px;border-radius:20px;font-weight:700;font-size:.8rem"></div>
+    <div style="width:12px"></div>
+    <div id="t-cinta" class="timer">2:00</div>
+  </div>
+  <div class="body-scroll">
+    <div class="body-wide">
+      <div class="exp-layout">
+        <div>
+          <div style="font-size:.72rem;color:#374151;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">📋 Tu lista – operadores a recoger</div>
+          <div class="lista-img"><img id="cinta-lista-img" src="" alt="Lista de operadores"></div>
+          <div style="margin-top:14px">
+            <div style="font-size:.72rem;color:#374151;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">📥 Tu caja (sobres recogidos)</div>
+            <div id="mi-caja" class="mi-caja caja-az"></div>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:.72rem;color:#374151;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">📬 Mesa – haz clic en los sobres correctos</div>
+          <div class="sobres-mesa" id="sobres-mesa"></div>
+          <div style="margin-top:14px;display:flex;gap:10px">
+            <div class="stat-box" style="background:var(--navy2);border:1px solid var(--border);border-radius:8px;padding:8px 14px;flex:1">
+              <div class="stat-n" id="cinta-ok">0</div><div class="stat-l">Recogidos</div></div>
+            <div class="stat-box" style="background:var(--navy2);border:1px solid var(--border);border-radius:8px;padding:8px 14px;flex:1">
+              <div class="stat-n" id="cinta-err">0</div><div class="stat-l">Errores</div></div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:16px">
+        <button class="btn btn-success" onclick="endCinta()">✓ Finalizar Cinta</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ APILADO ══════════════ -->
+<div id="sc-apilado" class="screen">
+  <div class="topbar">
+    <h2>🏗️ Test de Apilado</h2>
+    <div class="spacer"></div>
+    <div id="t-apilado" class="timer">4:00</div>
+  </div>
+  <div class="body-scroll">
+    <div class="body-wide">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start">
+        <div>
+          <div style="font-size:.72rem;color:#374151;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">📋 Ejercicios – Observa los diagramas</div>
+          <img id="apilado-img" src="" style="width:100%;border-radius:10px">
+          <p style="font-size:.75rem;color:#374151;margin-top:8px">G = Caja grande · M = Caja mediana · P = Caja pequeña</p>
+        </div>
+        <div>
+          <div style="font-size:.72rem;color:#374151;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">✏️ Selecciona la opción correcta</div>
+          <div class="apilado-answers" id="apilado-answers"></div>
+          <button class="btn btn-success" onclick="endApilado()" style="margin-top:12px;width:100%">✓ Finalizar Apilado</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ RESULTADO ══════════════ -->
+<div id="sc-result" class="screen">
+  <div class="topbar">
+    <div class="topbar-logos">
+      <img src="img/logo-color.png" class="topbar-logo" alt="Attitude" onerror="this.style.display='none'">
+      <span class="topbar-x">×</span>
+      <img src="img/logo-rmt.jpeg" class="topbar-logo" alt="RMT Logistics" onerror="this.style.display='none'">
+    </div>
+    <h2>Resultado de la evaluación</h2>
+    <div class="spacer"></div>
+    <button class="btn btn-ghost btn-sm" onclick="window.print()">🖨️ PDF / Imprimir</button>
+  </div>
+  <div class="body-scroll">
+    <div class="body-center" id="result-body"></div>
+  </div>
+</div>
+
+<!-- ══════════════ MODAL ALTURAS ══════════════ -->
+<div id="modal-alturas" class="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-icon">📏</div>
+    <h2>Referencia de alturas</h2>
+    <div style="display:flex;gap:12px;justify-content:center;margin:16px 0">
+      <div style="background:#dbeafe;border:2px solid #93c5fd;border-radius:10px;padding:14px 22px;text-align:center">
+        <div style="font-size:1.4rem;font-weight:900;color:#1e3a8a">AZUL</div>
+        <div style="font-size:.8rem;color:#1d4ed8;margin-top:4px;font-weight:700">Altura 1</div>
+      </div>
+      <div style="background:#ffedd5;border:2px solid #fdba74;border-radius:10px;padding:14px 22px;text-align:center">
+        <div style="font-size:1.4rem;font-weight:900;color:#7c2d12">NARANJA</div>
+        <div style="font-size:.8rem;color:#c2410c;margin-top:4px;font-weight:700">Altura 2</div>
+      </div>
+    </div>
+    <p style="color:var(--red);font-weight:700;font-size:.85rem">Se han descontado 10 segundos de tu tiempo.</p>
+    <button class="btn btn-primary" onclick="closeModalAlturas()">Entendido</button>
+  </div>
+</div>
+
+<!-- ══════════════ MODAL TIEMPO ══════════════ -->
+<div id="modal-time" class="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-icon">⏰</div>
+    <h2>¡Tiempo agotado!</h2>
+    <p id="modal-msg">Se ha agotado el tiempo para esta estación.</p>
+    <button class="btn btn-primary" id="modal-btn">Continuar →</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════ DATA ═══════════════════════
+
+// PEDIDOS PICKING (basados en las imágenes del PDF)
+const PEDIDOS = [
+  { id:1, img:'img/pedido_1.png', picks:[
+    {n:1,p:'B',u:'11',a:2,prod:'Avión',uds:1},
+    {n:2,p:'D',u:'21',a:1,prod:'Chaleco',uds:2},
+    {n:3,p:'A',u:'12',a:1,prod:'Gato',uds:1},
+    {n:4,p:'C',u:'11',a:2,prod:'Pizza',uds:1},
+    {n:5,p:'E',u:'21',a:2,prod:'Skate',uds:1},
+    {n:6,p:'A',u:'21',a:2,prod:'Jirafa',uds:1},
+  ]},
+  { id:2, img:'img/pedido_2.png', picks:[
+    {n:1,p:'A',u:'21',a:1,prod:'Mono',uds:1},
+    {n:2,p:'E',u:'11',a:1,prod:'Tenis',uds:2},
+    {n:3,p:'C',u:'12',a:2,prod:'Hamburguesa',uds:1},
+    {n:4,p:'B',u:'12',a:2,prod:'Barco',uds:1},
+    {n:5,p:'D',u:'11',a:2,prod:'Vestido',uds:1},
+    {n:6,p:'C',u:'21',a:1,prod:'Pan',uds:1},
+  ]},
+  { id:3, img:'img/pedido_3.png', picks:[
+    {n:1,p:'D',u:'12',a:1,prod:'Chaqueta',uds:1},
+    {n:2,p:'B',u:'11',a:1,prod:'Coche',uds:1},
+    {n:3,p:'E',u:'21',a:2,prod:'Bádminton',uds:2},
+    {n:4,p:'A',u:'11',a:2,prod:'León',uds:1},
+    {n:5,p:'C',u:'11',a:1,prod:'Zanahoria',uds:1},
+    {n:6,p:'B',u:'21',a:1,prod:'Tractor',uds:1},
+  ]},
+  { id:4, img:'img/pedido_4.png', picks:[
+    {n:1,p:'C',u:'12',a:1,prod:'Plátano',uds:1},
+    {n:2,p:'A',u:'12',a:2,prod:'Tigre',uds:1},
+    {n:3,p:'E',u:'12',a:2,prod:'Boxeo',uds:2},
+    {n:4,p:'D',u:'12',a:2,prod:'Gorra',uds:1},
+    {n:5,p:'B',u:'12',a:2,prod:'Helicóptero',uds:1},
+    {n:6,p:'E',u:'11',a:1,prod:'Fútbol',uds:1},
+  ]},
+  { id:5, img:'img/pedido_5.png', picks:[
+    {n:1,p:'E',u:'21',a:1,prod:'Basket',uds:1},
+    {n:2,p:'B',u:'21',a:1,prod:'Moto',uds:1},
+    {n:3,p:'D',u:'11',a:2,prod:'Zapatilla',uds:2},
+    {n:4,p:'C',u:'21',a:2,prod:'Donut',uds:1},
+    {n:5,p:'D',u:'21',a:1,prod:'Camiseta',uds:1},
+  ]},
+];
+
+// WAREHOUSE: pasillo → ubicación → altura → tarjetas[]
+// Cada tarjeta: {nombre, trampa:bool}
+const WH = {
+  A:{
+    '11':{azul:['Perro','Tigre','_León_t','Gato'],       naranja:['León','_Perro_t','Mono','Jirafa']},
+    '21':{azul:['Mono','Jirafa','_Tigre_t','León'],       naranja:['Jirafa','Tigre','_Mono_t','Perro']},
+    '31':{azul:['León','Gato','_Jirafa_t','Tigre'],       naranja:['Tigre','_Gato_t','Perro','Mono']},
+    '12':{azul:['Gato','León','_Mono_t','Perro'],         naranja:['Mono','_Gato_t','Tigre','León']},
+  },
+  B:{
+    '11':{azul:['Coche','Tractor','_Barco_t','Camión'],   naranja:['Barco','_Coche_t','Avión','Helicóptero']},
+    '12':{azul:['Avión','Camión','_Moto_t','Tractor'],    naranja:['Avión','Barco','Helicóptero','_Avión_t']},
+    '21':{azul:['Moto','Tractor','_Avión_t','Coche'],     naranja:['Camión','_Tractor_t','Helicóptero','Barco']},
+    '22':{azul:['Helicóptero','Barco','_Coche_t','Avión'],naranja:['Coche','_Barco_t','Camión','Tractor']},
+    '32':{azul:['Camión','Avión','_Tractor_t','Moto'],    naranja:['Moto','_Avión_t','Barco','Coche']},
+  },
+  C:{
+    '11':{azul:['Zanahoria','Plátano','_Pizza_t','Pan'],  naranja:['Pizza','_Zanahoria_t','Donut','Hamburguesa']},
+    '12':{azul:['Plátano','Pan','_Manzana_t','Donut'],    naranja:['Hamburguesa','_Plátano_t','Pizza','Manzana']},
+    '13':{azul:['Manzana','Donut','_Pan_t','Zanahoria'],  naranja:['Pan','_Donut_t','Zanahoria','Pizza']},
+    '21':{azul:['Pan','Manzana','_Donut_t','Plátano'],    naranja:['Pan','_Manzana_t','Hamburguesa','Donut']},
+    '23':{azul:['Donut','Hamburguesa','_Plátano_t','Pan'],naranja:['Zanahoria','_Hamburguesa_t','Plátano','Pizza']},
+    '33':{azul:['Hamburguesa','Pizza','_Pan_t','Manzana'],naranja:['Pizza','_Donut_t','Zanahoria','Hamburguesa']},
+  },
+  D:{
+    '11':{azul:['Chaleco','Camiseta','_Vestido_t','Pantalón'],  naranja:['Vestido','_Chaleco_t','Zapatilla','Gorra']},
+    '12':{azul:['Chaqueta','Gorra','_Camiseta_t','Sudadera'],   naranja:['Gorra','_Chaqueta_t','Camiseta','Pantalón']},
+    '21':{azul:['Chaleco','Camiseta','_Sudadera_t','Chaqueta'], naranja:['Vestido','_Chaleco_t','Camiseta','Zapatilla']},
+    '24':{azul:['Chaleco','Pantalón','_Gorra_t','Vestido'],     naranja:['Gorra','_Chaleco_t','Sudadera','Chaqueta']},
+    '34':{azul:['Pantalón','Chaqueta','_Sudadera_t','Gorra'],   naranja:['Vestido','_Pantalón_t','Chaleco','Gorra']},
+  },
+  E:{
+    '11':{azul:['Fútbol','Tenis','_Skate_t','Bádminton'],       naranja:['Skate','_Fútbol_t','Basket','Boxeo']},
+    '12':{azul:['Tenis','Basket','_Bádminton_t','Skate'],       naranja:['Boxeo','_Tenis_t','Skate','Fútbol']},
+    '15':{azul:['Basket','Fútbol','_Tenis_t','Skate'],          naranja:['Skate','_Basket_t','Bádminton','Tenis']},
+    '21':{azul:['Basket','Bádminton','_Boxeo_t','Fútbol'],      naranja:['Skate','Bádminton','_Basket_t','Tenis']},
+    '25':{azul:['Zapatilla','Tenis','_Fútbol_t','Bádminton'],   naranja:['Tenis','_Zapatilla_t','Bádminton','Fútbol']},
+    '35':{azul:['Bádminton','Skate','_Tenis_t','Fútbol'],       naranja:['Basket','_Bádminton_t','Skate','Tenis']},
+  },
+};
+
+// PACKING PEDIDOS (basados en imágenes del PDF)
+const PACKING_SHEETS = [
+  { id:1, img:'img/packing_1.png', pedidos:[
+    {n:1, prendas:['Pantalón','Jersey','Camiseta'],   correcto:'M'},
+    {n:2, prendas:['Chaleco','Chaqueta','Camiseta'],  correcto:'L'},
+    {n:3, prendas:['Pantalón','Camiseta','Camiseta'], correcto:'M'},
+  ]},
+  { id:2, img:'img/packing_2.png', pedidos:[
+    {n:1, prendas:['Camiseta','Camiseta','Camiseta'], correcto:'S'},
+    {n:2, prendas:['Chaqueta','Chaleco','Camiseta'],  correcto:'L'},
+    {n:3, prendas:['Pantalón','Jersey','Camiseta'],   correcto:'M'},
+  ]},
+  { id:3, img:'img/packing_3.png', pedidos:[
+    {n:1, prendas:['Pantalón','Camiseta','Jersey'],   correcto:'M'},
+    {n:2, prendas:['Pantalón','Camiseta','Camiseta'], correcto:'M'},
+    {n:3, prendas:['Chaqueta','Chaleco','Camiseta'],  correcto:'L'},
+  ]},
+  { id:4, img:'img/packing_4.png', pedidos:[
+    {n:1, prendas:['Camiseta','Camiseta','Camiseta'], correcto:'S'},
+    {n:2, prendas:['Pantalón','Jersey','Camiseta'],   correcto:'M'},
+    {n:3, prendas:['Pantalón','Camiseta','Camiseta'], correcto:'M'},
+  ]},
+  { id:5, img:'img/packing_5.png', pedidos:[
+    {n:1, prendas:['Chaqueta','Chaleco','Camiseta'],  correcto:'L'},
+    {n:2, prendas:['Pantalón','Jersey','Camiseta'],   correcto:'M'},
+    {n:3, prendas:['Chaqueta','Chaleco','Camiseta'],  correcto:'L'},
+  ]},
+];
+
+// CINTA EXPEDICIONES
+const CINTA_MODELS = {
+  azul:{
+    img:'img/cinta_azul.png',
+    lista:['UPS','GLS','FedEx','MRW','NACEX','ASM','CTT','TIPSA','XPO','SEUR'],
+    color:'azul',
+  },
+  naranja:{
+    img:'img/cinta_naranja.png',
+    lista:['DHL','Correos','TNT','Amazon','DB Schenker','Chronopost','UPS','GLS','MRW','FedEx'],
+    color:'naranja',
+  },
+};
+
+const TODOS_OPERADORES = ['UPS','GLS','FedEx','MRW','NACEX','ASM','CTT','TIPSA','XPO','SEUR',
+  'DHL','Correos','TNT','Amazon','DB Schenker','Chronopost'];
+const TRAMPAS = ['DPD','YODEL','FASTSHIP','GLOBAL EXPRESS'];
+
+// APILADO
+const APILADO_MODELS = {
+  azul:{
+    img:'img/apilado_azul.png',
+    exercises:[
+      {titulo:'Ejercicio 1 – Estabilidad de carga', pregunta:'¿Qué palet es más estable?', correcto:'B'},
+      {titulo:'Ejercicio 2 – Altura y distribución', pregunta:'¿Qué apilado respeta mejor la distribución de peso?', correcto:'C'},
+      {titulo:'Ejercicio 3 – Organización de carga', pregunta:'¿Qué distribución aprovecha mejor el espacio sin perder estabilidad?', correcto:'B'},
+      {titulo:'Ejercicio 4 – Detección de error', pregunta:'¿Qué palet presenta mayor riesgo de caída?', correcto:'C'},
+    ]
+  },
+  naranja:{
+    img:'img/apilado_naranja.png',
+    exercises:[
+      {titulo:'Ejercicio 1 – Organización de carga', pregunta:'¿Qué distribución aprovecha mejor el espacio sin perder estabilidad?', correcto:'B'},
+      {titulo:'Ejercicio 2 – Detección de error', pregunta:'¿Qué palet presenta mayor riesgo de caída?', correcto:'C'},
+      {titulo:'Ejercicio 3 – Estabilidad de carga', pregunta:'¿Qué palet es más estable?', correcto:'B'},
+      {titulo:'Ejercicio 4 – Altura y distribución', pregunta:'¿Qué apilado respeta mejor la distribución de peso?', correcto:'C'},
+    ]
+  },
+};
+
+// ═══════════════════════ STATE ═══════════════════════
+const S = {
+  candidato:{},
+  picking:  {correctos:0, errores:0, tiempoRestante:180, pedidoId:null},
+  ptl:      {secuencias:0, incidencias:0, tiempoRestante:180},
+  packing:  {correctos:0, errores:0, tiempoRestante:120, sheetId:null},
+  cinta:    {correctos:0, errores:0, tiempoRestante:120, modelo:null},
+  apilado:  {correctos:0, respuestas:{}, modelo:null},
+};
+
+let timerInt = null;
+
+// ═══════════════════════ UTILS ═══════════════════════
+// ── Confirm + countdown ──
+let _confirmCallback=null;
+function confirmStart(fn){
+  _confirmCallback=fn;
+  const m=document.getElementById('confirm-modal');
+  document.getElementById('confirm-question').style.display='';
+  document.getElementById('confirm-countdown').style.display='none';
+  m.style.display='flex';
+}
+function closeConfirm(){
+  document.getElementById('confirm-modal').style.display='none';
+  _confirmCallback=null;
+}
+function doCountdown(){
+  document.getElementById('confirm-question').style.display='none';
+  const cd=document.getElementById('confirm-countdown');
+  cd.style.display='';
+  const num=document.getElementById('countdown-num');
+  let n=3;
+  num.textContent=n;
+  const iv=setInterval(()=>{
+    n--;
+    if(n>0){ num.textContent=n; }
+    else{
+      clearInterval(iv);
+      document.getElementById('confirm-modal').style.display='none';
+      if(_confirmCallback) _confirmCallback();
+      _confirmCallback=null;
+    }
+  },1000);
+}
+
+let _toastTimer=null;
+function showErrorToast(){
+  const t=document.getElementById('error-toast');
+  t.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer=setTimeout(()=>t.classList.remove('show'),1800);
+}
+function go(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); window.scrollTo(0,0); }
+function tog(el){ el.classList.toggle('checked'); }
+function getChecked(containerId){ return [...document.querySelectorAll(`#${containerId} div.checked`)].map(e=>e.textContent).join(', ')||'Ninguna'; }
+
+function startTimer(secs, displayId, onEnd){
+  clearInterval(timerInt);
+  let rem = secs;
+  const el = document.getElementById(displayId);
+  const tick = ()=>{
+    const m=Math.max(0,Math.floor(rem/60)), s=Math.max(0,rem%60);
+    el.textContent=`${m}:${s.toString().padStart(2,'0')}`;
+    if(rem<=30) el.classList.add('warn'); else el.classList.remove('warn');
+    if(rem<=0){ clearInterval(timerInt); onEnd(); return; }
+    rem--;
+  };
+  tick();
+  timerInt=setInterval(tick,1000);
+  const stop = ()=>{ clearInterval(timerInt); return rem; };
+  const penalize = (n)=>{ rem = Math.max(0, rem - n); tick(); };
+  return [stop, penalize];
+}
+
+function stopTimer(){ clearInterval(timerInt); }
+
+function showModal(msg, cb){
+  document.getElementById('modal-msg').textContent=msg;
+  const overlay=document.getElementById('modal-time');
+  overlay.classList.add('open');
+  document.getElementById('modal-btn').onclick=()=>{ overlay.classList.remove('open'); cb(); };
+}
+
+function pct(a,b){ return b>0?Math.round(a/b*100):0; }
+// Penalización por tiempo: a partir de la mitad del tiempo, -1% cada 3 segundos
+function timePenalty(tiempoRestante, totalTime){
+  const used = totalTime - (tiempoRestante||0);
+  const half = totalTime / 2;
+  if(used <= half) return 0;
+  return Math.floor((used - half) / 3);
+}
+function stars(score){
+  const n=Math.round(score/20);
+  return '<span class="stars">'+'★'.repeat(Math.max(0,n))+'☆'.repeat(Math.max(0,5-n))+'</span>';
+}
+
+// Behavioral score inferred from time+errors
+function behavScore(tiempoRestante, totalTiempo, errores){
+  const pctTime = tiempoRestante/totalTiempo;
+  let timeScore = pctTime>0.65?5:pctTime>0.45?4:pctTime>0.25?3:pctTime>0.05?2:1;
+  let errPenalty = errores>=4?2:errores>=2?1:0;
+  return Math.max(1, timeScore-errPenalty);
+}
+
+// ═══════════════════════ REGISTER ═══════════════════════
+function showPreStart(){
+  const nombre = document.getElementById('r-nombre').value.trim();
+  const primerNombre = nombre.split(' ')[0] || 'Candidato/a';
+  document.getElementById('pre-start-nombre').textContent = '¡Hola, ' + primerNombre + '!';
+  go('sc-pre-start');
+}
+
+function startInstrPicking(){
+  S.candidato.nombre = document.getElementById('r-nombre').value||'Candidato/a';
+  S.candidato.email  = document.getElementById('r-email').value||'';
+  S.candidato.tel    = document.getElementById('r-tel').value||'';
+  S.candidato.nac    = document.getElementById('r-nac').value||'';
+  S.candidato.sexo   = document.getElementById('r-sexo').value||'';
+  S.candidato.exp    = getChecked('exp-checks');
+  S.candidato.disp   = getChecked('disp-checks');
+  S.candidato.mov    = getChecked('mov-checks');
+  // Elegir pedido ejemplo aleatorio
+  const ejIdx = Math.floor(Math.random()*PEDIDOS.length);
+  window._pickEjemploId = PEDIDOS[ejIdx].id;
+  document.getElementById('inst-pedido-ejemplo').src = PEDIDOS[ejIdx].img;
+  go('sc-inst-picking');
+}
+
+// ═══════════════════════ PICKING ═══════════════════════
+let pickPedido=null, picksDone=[], pickErrCount=0, pickUnits={};
+
+function startPicking(){
+  const pedidosDisp = PEDIDOS.filter(p=>p.id!==(window._pickEjemploId||1));
+  pickPedido = pedidosDisp[Math.floor(Math.random()*pedidosDisp.length)];
+  S.picking.pedidoId   = pickPedido.id;
+  S.picking.totalPicks = pickPedido.picks.reduce((s,p)=>s+(p.uds||1),0); // suma de unidades
+  S.picking.correctos  = 0;
+  S.picking.errores    = 0;
+  picksDone  = [];
+  pickUnits  = {};   // {n: unidades_ya_cogidas}
+  pickErrCount = 0;
+  document.getElementById('pedido-img').src = pickPedido.img;
+  document.getElementById('picks-ok').textContent='0';
+  document.getElementById('picks-err').textContent='0';
+  document.getElementById('picks-tot').textContent=`0/${S.picking.totalPicks}`;
+  document.getElementById('btn-end-pick').disabled=true;
+  buildWarehouse();
+  go('sc-picking');
+  const [stop, penalize] = startTimer(180,'t-picking',()=>{
+    S.picking.tiempoRestante=0;
+    showModal('Tiempo de picking agotado.',endPicking);
+  });
+  window._pickStop=stop;
+  window._pickPenalize=penalize;
+}
+
+function buildWarehouse(){
+  const wh=document.getElementById('warehouse');
+  wh.innerHTML='';
+  const PASILLO_NAMES={A:'Animales',B:'Transportes',C:'Comida',D:'Ropa',E:'Deporte'};
+  // Show only pasillos needed for this pedido + 1 distractor
+  const usedPasillos=[...new Set(pickPedido.picks.map(p=>p.p))];
+  // Add all 5 pasillos
+  ['A','B','C','D','E'].forEach(pas=>{
+    const pData=WH[pas];
+    let html=`<div class="pasillo p-${pas}"><div class="pasillo-hdr">Pasillo ${pas} – ${PASILLO_NAMES[pas]}</div>`;
+    Object.entries(pData).forEach(([ubic,alturas])=>{
+      html+=`<div class="ubic"><div class="ubic-lbl">Ubic. ${ubic}</div>
+        <div class="alt-row alt-naranja" id="alt-${pas}-${ubic}-2"><span class="alt-label">Altura 2</span>`;
+      alturas.naranja.forEach(t=>{
+        const isTrap=t.startsWith('_');
+        const name=isTrap?t.replace(/_t$/,'').replace(/^_/,''):t;
+        html+=`<span class="tarj naranja" data-p="${pas}" data-u="${ubic}" data-a="2" data-n="${name}" data-trap="${isTrap}" onclick="clickTarj(this)">${name}</span>`;
+      });
+      html+=`</div>
+        <div class="alt-row alt-azul" id="alt-${pas}-${ubic}-1"><span class="alt-label">Altura 1</span>`;
+      alturas.azul.forEach(t=>{
+        const isTrap=t.startsWith('_');
+        const name=isTrap?t.replace(/_t$/,'').replace(/^_/,''):t;
+        html+=`<span class="tarj azul" data-p="${pas}" data-u="${ubic}" data-a="1" data-n="${name}" data-trap="${isTrap}" onclick="clickTarj(this)">${name}</span>`;
+      });
+      html+=`</div></div>`;
+    });
+    html+='</div>';
+    wh.innerHTML+=html;
+  });
+}
+
+function clickTarj(el){
+  if(el.classList.contains('hit')) return;
+  const name=el.dataset.n, pas=el.dataset.p, altura=parseInt(el.dataset.a), trap=el.dataset.trap==='true';
+  // Busca línea pendiente (no completada) que coincida
+  const pick=pickPedido.picks.find(p=>!picksDone.includes(p.n)&&p.prod===name&&p.p===pas&&p.a===altura&&!trap);
+  if(pick){
+    pickUnits[pick.n] = (pickUnits[pick.n]||0) + 1;
+    const needed = pick.uds||1;
+    const done   = pickUnits[pick.n];
+    S.picking.correctos++;
+    // Progreso en unidades
+    document.getElementById('picks-ok').textContent=S.picking.correctos;
+    document.getElementById('picks-tot').textContent=`${S.picking.correctos}/${S.picking.totalPicks}`;
+    if(done >= needed){
+      // Todas las unidades de esta línea completadas → marcar tarjeta
+      el.classList.remove('partial');
+      el.classList.add('hit');
+      const nm = el.dataset.n;
+      el.textContent = nm;
+      picksDone.push(pick.n);
+    } else {
+      // Unidades parciales → badge naranja con pendientes
+      el.classList.add('partial');
+      el.textContent = `${name} (×${needed-done} restante${needed-done>1?'s':''})`;
+    }
+    if(S.picking.correctos >= S.picking.totalPicks) document.getElementById('btn-end-pick').disabled=false;
+  } else {
+    // Click incorrecto
+    el.classList.add('miss');
+    setTimeout(()=>el.classList.remove('miss'),500);
+    pickErrCount++;
+    S.picking.errores=pickErrCount;
+    document.getElementById('picks-err').textContent=pickErrCount;
+    showErrorToast();
+  }
+}
+
+function recordarAlturas(){
+  document.getElementById('modal-alturas').classList.add('open');
+  // Penaliza -10s al timer activo
+  if(window._pickPenalize) window._pickPenalize(10);
+}
+function closeModalAlturas(){
+  document.getElementById('modal-alturas').classList.remove('open');
+}
+
+function endPicking(){
+  if(window._pickStop) S.picking.tiempoRestante=window._pickStop()||0;
+  stopTimer();
+  go('sc-inst-ptl');
+}
+
+// ═══════════════════════ PTL ═══════════════════════
+const PTL_ORDER=['azul','rojo','amarillo','verde'];
+let ptlPool=[], ptlCurrent=[], ptlSeqs=0, ptlIncs=0;
+
+function startPTL(){
+  const colors=['azul','azul','azul','azul','azul','azul','azul','azul',
+    'rojo','rojo','rojo','rojo','rojo','rojo','rojo','rojo',
+    'amarillo','amarillo','amarillo','amarillo','amarillo','amarillo','amarillo','amarillo',
+    'verde','verde','verde','verde','verde','verde','verde','verde',
+    'blanco','blanco','blanco','negro','negro'];
+  for(let i=colors.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1));[colors[i],colors[j]]=[colors[j],colors[i]]; }
+  ptlPool=colors.map((c,i)=>({id:i,color:c,used:false}));
+  ptlCurrent=[]; ptlSeqs=0; ptlIncs=0;
+  renderPTL();
+  go('sc-ptl');
+  updateNextBadge();
+  const [stop]=startTimer(180,'t-ptl',()=>{
+    S.ptl.tiempoRestante=0;
+    showModal('Tiempo de PTL agotado.',endPTL);
+  });
+  window._ptlStop=stop;
+}
+
+function renderPTL(){
+  document.getElementById('ptl-pool').innerHTML=ptlPool.map(t=>`
+    <div class="ptl-card c-${t.color} ${t.used?'used':''}" onclick="clickPTL(${t.id})"></div>`).join('');
+}
+
+function updateNextBadge(){
+  const next=PTL_ORDER[ptlCurrent.length];
+  const names={azul:'AZUL',rojo:'ROJO',amarillo:'AMARILLO',verde:'VERDE'};
+  const el=document.getElementById('next-badge');
+  if(next){ el.textContent=`Siguiente: ${names[next]}`; el.style.display='inline-block'; }
+  else { el.style.display='none'; }
+}
+
+function clickPTL(id){
+  const t=ptlPool.find(c=>c.id===id);
+  if(!t||t.used) return;
+  if(t.color==='blanco'||t.color==='negro'){
+    t.used=true; ptlIncs++;
+    document.getElementById('ptl-incs').textContent=ptlIncs;
+    S.ptl.incidencias=ptlIncs;
+    const inc=document.getElementById('ptl-inc-area');
+    const d=document.createElement('div');
+    d.className=`mini-card c-${t.color}`;
+    inc.appendChild(d);
+    renderPTL(); return;
+  }
+  const expected=PTL_ORDER[ptlCurrent.length];
+  if(t.color!==expected){
+    // Flash wrong
+    const cards=document.querySelectorAll('.ptl-card');
+    cards[ptlPool.indexOf(t)].classList.add('wrong');
+    setTimeout(()=>cards[ptlPool.indexOf(t)]?.classList.remove('wrong'),500);
+    return;
+  }
+  t.used=true;
+  ptlCurrent.push(t.color);
+  renderPTL();
+  if(ptlCurrent.length===4){
+    ptlSeqs++;
+    document.getElementById('ptl-seqs').textContent=ptlSeqs;
+    S.ptl.secuencias=ptlSeqs;
+    const area=document.getElementById('ptl-seq-area');
+    const seq=document.createElement('div');
+    seq.className='seq-unit';
+    ptlCurrent.forEach(c=>{ const mc=document.createElement('div'); mc.className=`mini-card c-${c}`; seq.appendChild(mc); });
+    const clip=document.createElement('span'); clip.textContent='📎'; clip.style.marginLeft='3px';
+    seq.appendChild(clip);
+    area.appendChild(seq);
+    ptlCurrent=[];
+  }
+  updateNextBadge();
+}
+
+function endPTL(){
+  if(window._ptlStop) S.ptl.tiempoRestante=window._ptlStop()||0;
+  stopTimer();
+  go('sc-inst-packing');
+}
+
+// ═══════════════════════ PACKING ═══════════════════════
+let packSheet=null, packSels={};
+
+function startPacking(){
+  packSheet=PACKING_SHEETS[Math.floor(Math.random()*PACKING_SHEETS.length)];
+  S.packing.sheetId=packSheet.id;
+  packSels={};
+  document.getElementById('packing-img').src=packSheet.img;
+  renderPackingPedidos();
+  go('sc-packing');
+  const [stop]=startTimer(120,'t-packing',()=>{
+    S.packing.tiempoRestante=0;
+    showModal('Tiempo de packing agotado.',endPacking);
+  });
+  window._packStop=stop;
+}
+
+function renderPackingPedidos(){
+  const cont=document.getElementById('packing-pedidos');
+  cont.innerHTML=packSheet.pedidos.map(p=>`
+    <div class="pedido-block" id="pb-${p.n}">
+      <div class="pedido-num">Pedido ${p.n}</div>
+      <div class="sobre-opts">
+        ${['S','M','L'].map(sz=>`
+          <div class="sobre-opt" id="ps-${p.n}-${sz}" onclick="selectSobre(${p.n},'${sz}')">
+            <div class="sobre-letter">${sz}</div>
+          </div>`).join('')}
+      </div>
+    </div>`).join('');
+}
+
+function selectSobre(pedidoN, sz){
+  packSels[pedidoN]=sz;
+  ['S','M','L'].forEach(s=>document.getElementById(`ps-${pedidoN}-${s}`)?.classList.remove('sel'));
+  document.getElementById(`ps-${pedidoN}-${sz}`)?.classList.add('sel');
+  document.getElementById(`pb-${pedidoN}`)?.classList.add('done');
+}
+
+function endPacking(){
+  if(window._packStop) S.packing.tiempoRestante=window._packStop()||0;
+  stopTimer();
+  let ok=0,err=0;
+  packSheet.pedidos.forEach(p=>{
+    if(packSels[p.n]){ if(packSels[p.n]===p.correcto)ok++;else err++; }
+  });
+  S.packing.correctos=ok; S.packing.errores=err;
+  go('sc-inst-exp');
+}
+
+// ═══════════════════════ CINTA ═══════════════════════
+let cintaModel=null, cintaSobres=[], cintaBox=[];
+
+function startCinta(){
+  const modelo=Math.random()>0.5?'azul':'naranja';
+  cintaModel=CINTA_MODELS[modelo];
+  S.cinta.modelo=modelo;
+  // Banner
+  const banner=document.getElementById('color-badge');
+  banner.textContent=`Color asignado: ${modelo.toUpperCase()}`;
+  banner.style.background=modelo==='azul'?'rgba(59,130,246,.3)':'rgba(249,115,22,.3)';
+  banner.style.color=modelo==='azul'?'#93c5fd':'#fdba74';
+  // Imagen lista
+  document.getElementById('cinta-lista-img').src=cintaModel.img;
+  // Caja
+  const caja=document.getElementById('mi-caja');
+  caja.className=`mi-caja caja-${modelo}`;
+  caja.innerHTML='<span style="color:#374151;font-size:.75rem">Tu caja está vacía</span>';
+  // Generar sobres en mesa (operadores correctos + otros + trampas)
+  cintaSobres=[];
+  TODOS_OPERADORES.forEach(op=>{
+    cintaSobres.push({op,color:'azul',trap:false,taken:false});
+    cintaSobres.push({op,color:'naranja',trap:false,taken:false});
+  });
+  TRAMPAS.forEach(op=>{
+    cintaSobres.push({op,color:'azul',trap:true,taken:false});
+    cintaSobres.push({op,color:'naranja',trap:true,taken:false});
+  });
+  // Mezclar
+  for(let i=cintaSobres.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1));[cintaSobres[i],cintaSobres[j]]=[cintaSobres[j],cintaSobres[i]]; }
+  cintaBox=[];
+  renderSobres();
+  document.getElementById('cinta-ok').textContent='0';
+  document.getElementById('cinta-err').textContent='0';
+  go('sc-cinta');
+  const [stop]=startTimer(120,'t-cinta',()=>{
+    S.cinta.tiempoRestante=0;
+    showModal('Tiempo de cinta agotado.',endCinta);
+  });
+  window._cintaStop=stop;
+}
+
+function renderSobres(){
+  const mesa=document.getElementById('sobres-mesa');
+  mesa.innerHTML=cintaSobres.map((s,i)=>`
+    <div class="s-sobre ${s.color==='azul'?'az':'na'} ${s.taken?'taken':''}" onclick="recogerSobre(${i})">${s.op}</div>`).join('');
+}
+
+function recogerSobre(i){
+  const s=cintaSobres[i];
+  if(s.taken) return;
+  s.taken=true;
+  // Correct = en lista + color correcto + no trampa
+  const enLista=cintaModel.lista.includes(s.op);
+  const colorOk=s.color===cintaModel.color;
+  const correct=enLista&&colorOk&&!s.trap;
+  cintaBox.push({op:s.op,color:s.color,correct});
+  if(correct){ S.cinta.correctos++; document.getElementById('cinta-ok').textContent=S.cinta.correctos; }
+  else { S.cinta.errores++; document.getElementById('cinta-err').textContent=S.cinta.errores; showErrorToast(); }
+  renderSobres();
+  const caja=document.getElementById('mi-caja');
+  if(caja.querySelector('span')) caja.innerHTML='';
+  const tag=document.createElement('div');
+  tag.className=`s-sobre ${s.color==='azul'?'az':'na'}`;
+  tag.style.cursor='default';
+  tag.style.outline=correct?'2px solid #4ade80':'2px solid #f87171';
+  tag.textContent=s.op;
+  caja.appendChild(tag);
+}
+
+function endCinta(){
+  if(window._cintaStop) S.cinta.tiempoRestante=window._cintaStop()||0;
+  stopTimer();
+  go('sc-inst-apilado');
+}
+
+// ═══════════════════════ APILADO ═══════════════════════
+let apiModel=null, apiResp={};
+
+function startApilado(){
+  const modelo=S.cinta.modelo||'azul';
+  apiModel=APILADO_MODELS[modelo];
+  S.apilado.modelo=modelo;
+  apiResp={};
+  document.getElementById('apilado-img').src=apiModel.img;
+  renderApiladoAnswers();
+  go('sc-apilado');
+  const [stop]=startTimer(120,'t-apilado',()=>{
+    showModal('Tiempo de apilado agotado.',endApilado);
+  });
+  window._apiStop=stop;
+}
+
+function renderApiladoAnswers(){
+  const cont=document.getElementById('apilado-answers');
+  cont.innerHTML=apiModel.exercises.map((ej,qi)=>`
+    <div class="ej-block">
+      <h4>${ej.titulo}</h4>
+      <p style="font-size:.78rem;color:#374151;margin-bottom:10px">${ej.pregunta}</p>
+      <div class="abcd">
+        ${['A','B','C','D'].map(op=>`<div class="abcd-btn" id="ab-${qi}-${op}" onclick="selApi(${qi},'${op}')">${op}</div>`).join('')}
+      </div>
+    </div>`).join('');
+}
+
+function selApi(qi,op){
+  apiModel.exercises[qi].opciones?.forEach(()=>{});
+  ['A','B','C','D'].forEach(o=>document.getElementById(`ab-${qi}-${o}`)?.classList.remove('sel'));
+  document.getElementById(`ab-${qi}-${op}`)?.classList.add('sel');
+  apiResp[qi]=op;
+}
+
+function endApilado(){
+  if(window._apiStop) S.apilado.tiempoRestante=window._apiStop()||0;
+  stopTimer();
+  let ok=0;
+  apiModel.exercises.forEach((ej,qi)=>{
+    const resp=apiResp[qi];
+    if(resp===ej.correcto){ ok++; document.getElementById(`ab-${qi}-${resp}`)?.classList.replace('sel','correct'); }
+    else {
+      if(resp) document.getElementById(`ab-${qi}-${resp}`)?.classList.replace('sel','wrong');
+      document.getElementById(`ab-${qi}-${ej.correcto}`)?.classList.add('correct');
+    }
+  });
+  S.apilado.correctos=ok;
+  S.apilado.respuestas={...apiResp};
+  generateResult();
+}
+
+// ═══════════════════════ RESULTADO AUTO-SCORING ═══════════════════════
+function generateResult(){
+  // --- SCORES POR ESTACIÓN ---
+  const pickPrec  = pct(S.picking.correctos, S.picking.totalPicks||7);  // 0-100
+  const pickRitmo = behavScore(S.picking.tiempoRestante, 180, S.picking.errores); // 1-5
+  const pickOrg   = Math.max(1,5-Math.floor(S.picking.errores/2));
+
+  const ptlScore  = Math.min(100, S.ptl.secuencias*12);
+  const ptlRitmo  = behavScore(S.ptl.tiempoRestante, 180, 0);
+  const ptlConc   = S.ptl.secuencias>=6?5:S.ptl.secuencias>=4?4:S.ptl.secuencias>=2?3:S.ptl.secuencias>=1?2:1;
+  const ptlOrg    = S.ptl.incidencias>0?Math.min(5,3+Math.floor(S.ptl.incidencias/2)):3;
+
+  const packPrec  = pct(S.packing.correctos, 3);
+  const packRitmo = behavScore(S.packing.tiempoRestante, 120, S.packing.errores);
+  const packOrg   = Math.max(1,5-S.packing.errores);
+
+  const cintaPrec = pct(S.cinta.correctos, cintaModel?.lista?.length||10);
+  const cintaRitmo= behavScore(S.cinta.tiempoRestante, 120, S.cinta.errores);
+  const cintaCtrl = Math.max(1,5-S.cinta.errores);
+
+  const apiScore  = pct(S.apilado.correctos, 4);
+
+  // --- PENALIZACIONES POR TIEMPO (a partir de la mitad, -1% cada 3s) ---
+  const pickTimePen  = timePenalty(S.picking.tiempoRestante, 180);
+  const ptlTimePen   = timePenalty(S.ptl.tiempoRestante,     180);
+  const packTimePen  = timePenalty(S.packing.tiempoRestante, 120);
+  const cintaTimePen = timePenalty(S.cinta.tiempoRestante,   120);
+  const apiTimePen   = timePenalty(S.apilado.tiempoRestante, 120);
+
+  const pickFinal  = Math.max(0, pickPrec  - pickTimePen);
+  const ptlFinal   = Math.max(0, ptlScore  - ptlTimePen);
+  const packFinal  = Math.max(0, packPrec  - packTimePen);
+  const cintaFinal = Math.max(0, cintaPrec - cintaTimePen);
+  const apiFinal   = Math.max(0, apiScore  - apiTimePen);
+
+  // --- GLOBAL ---
+  const totalErrores = (S.picking.errores||0) + (S.packing.errores||0) + (S.cinta.errores||0);
+  const global = Math.max(0, Math.round((pickFinal*0.25 + ptlFinal*0.2 + packFinal*0.2 + cintaFinal*0.2 + apiFinal*0.15)) - totalErrores*5);
+
+  // --- APTITUD ---
+  let aptBadge, aptClass, aptDesc;
+  if(global>=80){        aptBadge='APTO +++'; aptClass='ba3'; aptDesc='Candidato/a con rendimiento excelente. Recomendado para incorporación inmediata.'; }
+  else if(global>=65){   aptBadge='APTO ++';  aptClass='ba2'; aptDesc='Buen desempeño global. Candidato/a con alta capacidad operativa.'; }
+  else if(global>=50){   aptBadge='APTO +';   aptClass='ba';  aptDesc='Desempeño correcto. Candidato/a con potencial de desarrollo.'; }
+  else if(global>=35){   aptBadge='APTO';     aptClass='ba';  aptDesc='Desempeño básico. Puede mejorar con formación específica.'; }
+  else{                  aptBadge='NO APTO';  aptClass='bna'; aptDesc='El desempeño global no alcanza el mínimo operativo requerido.'; }
+
+  // Render observable bars (1–5 converted to %)
+  const obsBars = [
+    {lbl:'Picking – Concentración/Ritmo',  val:pickRitmo},
+    {lbl:'Picking – Organización',         val:pickOrg},
+    {lbl:'PTL – Concentración',            val:ptlConc},
+    {lbl:'PTL – Ritmo de ejecución',       val:ptlRitmo},
+    {lbl:'PTL – Organización método',      val:ptlOrg},
+    {lbl:'Packing – Ritmo/Continuidad',    val:packRitmo},
+    {lbl:'Packing – Organización puesto',  val:packOrg},
+    {lbl:'Expediciones – Ritmo búsqueda',  val:cintaRitmo},
+    {lbl:'Expediciones – Control error',   val:cintaCtrl},
+  ];
+
+  const barColor = v => v>=4?'#4ade80':v===3?'#facc15':'#f87171';
+
+  document.getElementById('result-body').innerHTML=`
+    <div class="result-hero">
+      <div style="font-size:1.4rem;font-weight:800;color:#fff">${S.candidato.nombre||'Candidato/a'}</div>
+      <div style="color:#374151;font-size:.85rem;margin-top:4px">Evaluación: ${new Date().toLocaleDateString('es-ES')}</div>
+      <div class="aptitud-badge ${aptClass}">${aptBadge}</div>
+      <div style="font-size:3rem;font-weight:900;color:#fff;margin:4px 0">${global}<span style="font-size:1.2rem;color:#374151">%</span></div>
+      <div style="color:#374151;font-size:.85rem">${aptDesc}</div>
+    </div>
+
+    <div class="result-grid">
+      <div class="result-card">
+        <h4>🗂️ Picking</h4>
+        <div class="big">${S.picking.correctos}<span style="font-size:1rem;color:var(--text3)">/${S.picking.totalPicks||6}</span></div>
+        ${stars(pickPrec)}
+        <div class="sub">Errores: ${S.picking.errores} · Pedido nº${S.picking.pedidoId||'—'}</div>
+      </div>
+      <div class="result-card">
+        <h4>🃏 PTL</h4>
+        <div class="big">${S.ptl.secuencias}<span style="font-size:.9rem;color:#374151"> seq.</span></div>
+        ${stars(ptlScore)}
+        <div class="sub">Incidencias: ${S.ptl.incidencias}</div>
+      </div>
+      <div class="result-card">
+        <h4>📦 Packing</h4>
+        <div class="big">${S.packing.correctos}<span style="font-size:1rem;color:#374151">/3</span></div>
+        ${stars(packPrec)}
+        <div class="sub">Sobres correctos · Hoja nº${S.packing.sheetId||'—'}</div>
+      </div>
+      <div class="result-card">
+        <h4>🚚 Expediciones</h4>
+        <div class="big">${S.cinta.correctos}<span style="font-size:.9rem;color:#374151"> + ${S.apilado.correctos}/4</span></div>
+        ${stars((cintaPrec+apiScore)/2)}
+        <div class="sub">Cinta: ${S.cinta.correctos}/${cintaModel?.lista?.length||10} · Apilado: ${S.apilado.correctos}/4</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px">
+      <h3 style="margin-bottom:16px">📊 Indicadores de comportamiento (inferidos)</h3>
+      <div class="perf-bars">
+        ${obsBars.map(b=>`
+          <div class="perf-bar-row">
+            <div class="perf-bar-label">${b.lbl}</div>
+            <div class="perf-bar-track"><div class="perf-bar-fill" style="width:${b.val*20}%;background:${barColor(b.val)}"></div></div>
+            <div class="perf-bar-val" style="color:${barColor(b.val)}">${b.val}/5</div>
+          </div>`).join('')}
+      </div>
+      <p style="font-size:.72rem;color:#475569;margin-top:12px">* Los indicadores de comportamiento se infieren automáticamente del tiempo empleado, los errores cometidos y el número de tareas completadas en cada estación.</p>
+    </div>
+
+    <div class="card card-blue" style="margin-bottom:16px">
+      <h3 style="margin-bottom:12px">📋 Detalle técnico</h3>
+      <table style="width:100%;font-size:.82rem;border-collapse:collapse">
+        <tr style="border-bottom:1px solid var(--border)"><th style="text-align:left;padding:6px 4px;color:#374151">Estación</th><th style="padding:6px 4px;color:#374151">Resultado</th><th style="padding:6px 4px;color:#374151">Puntuación</th></tr>
+        <tr style="border-bottom:1px solid var(--border)"><td style="padding:7px 4px">Picking</td><td style="padding:7px 4px">${S.picking.correctos}/${S.picking.totalPicks||6} picks · ${S.picking.errores} errores</td><td style="padding:7px 4px;font-weight:700;color:${pickPrec>=70?'#4ade80':pickPrec>=40?'#facc15':'#f87171'}">${pickPrec}%</td></tr>
+        <tr style="border-bottom:1px solid var(--border)"><td style="padding:7px 4px">PTL</td><td style="padding:7px 4px">${S.ptl.secuencias} secuencias · ${S.ptl.incidencias} incidencias</td><td style="padding:7px 4px;font-weight:700;color:${ptlScore>=70?'#4ade80':ptlScore>=40?'#facc15':'#f87171'}">${ptlScore}%</td></tr>
+        <tr style="border-bottom:1px solid var(--border)"><td style="padding:7px 4px">Packing</td><td style="padding:7px 4px">${S.packing.correctos}/3 sobres correctos · ${S.packing.errores} errores</td><td style="padding:7px 4px;font-weight:700;color:${packPrec>=70?'#4ade80':packPrec>=40?'#facc15':'#f87171'}">${packPrec}%</td></tr>
+        <tr style="border-bottom:1px solid var(--border)"><td style="padding:7px 4px">Cinta</td><td style="padding:7px 4px">${S.cinta.correctos}/${cintaModel?.lista?.length||10} sobres correctos · ${S.cinta.errores} errores</td><td style="padding:7px 4px;font-weight:700;color:${cintaPrec>=70?'#4ade80':cintaPrec>=40?'#facc15':'#f87171'}">${cintaPrec}%</td></tr>
+        <tr><td style="padding:7px 4px">Apilado</td><td style="padding:7px 4px">${S.apilado.correctos}/4 respuestas correctas</td><td style="padding:7px 4px;font-weight:700;color:${apiScore>=70?'#4ade80':apiScore>=40?'#facc15':'#f87171'}">${apiScore}%</td></tr>
+      </table>
+    </div>
+
+    <div style="display:flex;gap:12px;flex-wrap:wrap;padding-bottom:32px">
+      <button class="btn btn-primary" onclick="window.print()">🖨️ Guardar como PDF</button>
+      <button class="btn btn-ghost" onclick="location.reload()">Nueva evaluación</button>
+    </div>
+  `;
+  go('sc-result');
+  sendResultEmail({global,aptBadge,pickPrec,ptlScore,packPrec,cintaPrec,apiScore});
+}
+
+function sendResultEmail(scores){
+  const c = S.candidato;
+  const fecha = new Date().toLocaleDateString('es-ES');
+
+  const params = {
+    to_email:     'cvilaplana@attitude.tech',
+    subject:      `[Dinámica RMT] ${c.nombre} – ${scores.aptBadge} (${scores.global}%) – ${fecha}`,
+    fecha,
+    nombre:       c.nombre,
+    email:        c.email,
+    telefono:     c.tel,
+    nacimiento:   c.nac,
+    sexo:         c.sexo,
+    experiencia:  c.exp,
+    disponibilidad: c.disp,
+    movilidad:    c.mov,
+    puntuacion:   `${scores.global}%`,
+    aptitud:      scores.aptBadge,
+    picking:      `${S.picking.correctos}/${S.picking.totalPicks||6} picks · ${S.picking.errores} errores · ${scores.pickPrec}%`,
+    ptl:          `${S.ptl.secuencias} secuencias · ${S.ptl.incidencias} incidencias · ${scores.ptlScore}%`,
+    packing:      `${S.packing.correctos}/3 sobres · ${S.packing.errores} errores · ${scores.packPrec}%`,
+    cinta:        `${S.cinta.correctos}/${cintaModel?.lista?.length||10} operadores · ${S.cinta.errores} errores · ${scores.cintaPrec}%`,
+    apilado:      `${S.apilado.correctos}/4 respuestas · ${scores.apiScore}%`,
+  };
+
+  emailjs.send('Attitude-resend', 'Attitude-resend-template', params)
+    .then(()=>console.log('Evaluación enviada correctamente'))
+    .catch(err=>console.error('Error al enviar evaluación:', err));
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 160" fill="none">
+  <!-- Cross/X symbol top-right -->
+  <g transform="translate(450,18)">
+    <path d="M30 0 C36 0 40 4 40 10 L40 24 C40 30 36 34 30 34 L24 34 C18 34 14 30 14 24 L0 24 C0 30 -4 34 -10 34 C-16 34 -20 30 -20 24 C-20 18 -16 14 -10 14 L4 14 L4 10 C4 4 8 0 14 0 C20 0 24 4 24 10 L24 14 L30 14 C36 14 40 18 40 24" stroke="#1447e6" stroke-width="7" stroke-linecap="round" fill="none"/>
+  </g>
+  <!-- "Attitude" text -->
+  <text x="10" y="100" font-family="'Segoe UI', Arial, sans-serif" font-size="88" font-weight="800" fill="#1447e6" letter-spacing="-2">Attitude</text>
+  <!-- "Growth People" italic -->
+  <text x="14" y="148" font-family="'Segoe UI', Arial, sans-serif" font-size="46" font-weight="400" font-style="italic" fill="#1447e6">Growth People</text>
+</svg>

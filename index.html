@@ -413,10 +413,10 @@ select option{background:#fff;color:var(--text)}
 
     <p style="font-size:.8rem;color:var(--text3);margin-bottom:16px">Las 4 estaciones de la dinámica:</p>
     <div class="station-grid" style="margin-bottom:28px">
-      <div class="station-chip"><div class="ic">🗂️</div><div class="st-name">Picking</div><div class="st-dur">3 min</div></div>
-      <div class="station-chip"><div class="ic">🃏</div><div class="st-name">PTL</div><div class="st-dur">2 min</div></div>
+      <div class="station-chip"><div class="ic">🗂️</div><div class="st-name">Picking</div><div class="st-dur">2.5 min</div></div>
+      <div class="station-chip"><div class="ic">🃏</div><div class="st-name">PTL</div><div class="st-dur">1.5 min</div></div>
       <div class="station-chip"><div class="ic">📦</div><div class="st-name">Packing</div><div class="st-dur">1 min</div></div>
-      <div class="station-chip"><div class="ic">🚚</div><div class="st-name">Expediciones</div><div class="st-dur">4 min</div></div>
+      <div class="station-chip"><div class="ic">🚚</div><div class="st-name">Expediciones</div><div class="st-dur">3 min</div></div>
     </div>
 
     <button class="btn btn-primary btn-lg" onclick="go('sc-register')">Comenzar ›</button>
@@ -543,7 +543,7 @@ select option{background:#fff;color:var(--text)}
           <li>En el <strong>lado izquierdo</strong> tendrás tu <strong>hoja de pedido</strong> con los artículos y su ubicación exacta.</li>
           <li>En el <strong>lado derecho</strong> verás el <strong>almacén virtual</strong> — haz clic sobre la tarjeta del artículo correcto.</li>
           <li>Si un artículo pide <strong>2 unidades</strong>, haz clic <strong>dos veces</strong>.</li>
-          <li>Tienes <strong>3 minutos</strong>. Cuando acabes, pulsa "Finalizar picking".</li>
+          <li>Tienes <strong>2 minutos y medio</strong>. Cuando acabes, pulsa "Finalizar picking".</li>
         </ul>
         <p style="margin-top:8px;font-size:.84rem;border-top:1px solid var(--border);padding-top:7px;margin-bottom:0">Si estás listo/a para empezar la prueba, selecciona <strong>Empezar Picking</strong>. ¡Buena suerte! 💪</p>
       </div>
@@ -799,7 +799,7 @@ select option{background:#fff;color:var(--text)}
         <ul style="margin:0;padding-left:18px;font-size:.84rem;line-height:1.45">
           <li>Haz clic en las tarjetas <strong>en orden</strong>. Cada 4 forman una secuencia completa.</li>
           <li>Las tarjetas <strong>blancas y negras son incidencias</strong>: haz clic en ellas para añadirlas a un <strong>sobre aparte</strong> — el orden no importa.</li>
-          <li>Tienes <strong>2 minutos</strong>.</li>
+          <li>Tienes <strong>1 minuto y medio</strong>.</li>
         </ul>
       </div>
       <!-- Ejemplo visual PTL -->
@@ -1031,7 +1031,7 @@ select option{background:#fff;color:var(--text)}
         <img src="img/EXPEDICIONES.png" style="height:80px;width:auto;border-radius:10px;object-fit:contain;display:block;margin:0 auto">
       </div>
       <div class="card card-blue" style="padding:8px 12px;margin-bottom:8px">
-        <h3 style="margin-bottom:4px">Prueba 1 – Cinta de clasificación (2 min)</h3>
+        <h3 style="margin-bottom:4px">Prueba 1 – Cinta de clasificación (1 min 30 s)</h3>
         <ul style="margin:0;padding-left:18px;font-size:.82rem;line-height:1.4">
           <li>A la izquierda verás tu <strong>lista de operadores logísticos</strong> y tu <strong>color asignado</strong> (azul o naranja).</li>
           <li>A la derecha hay sobres mezclados de ambos colores con nombres de operadores.</li>
@@ -1104,7 +1104,7 @@ select option{background:#fff;color:var(--text)}
         <span style="font-size:.85rem;font-weight:700;color:#065f46">✅ Prueba 1 completada — ahora la Prueba 2</span>
       </div>
       <div class="card card-blue" style="padding:8px 12px;margin-bottom:8px">
-        <h3 style="margin-bottom:4px">Prueba 2 – Test de apilado (2 min)</h3>
+        <h3 style="margin-bottom:4px">Prueba 2 – Test de apilado (1 min 30 s)</h3>
         <ul style="margin:0;padding-left:18px;font-size:.82rem;line-height:1.4">
           <li>Se muestran situaciones de <strong>apilado de cajas logísticas</strong>.</li>
           <li>Observa los diagramas: <strong>G</strong> = caja grande · <strong>M</strong> = mediana · <strong>P</strong> = pequeña.</li>
@@ -1437,11 +1437,11 @@ const APILADO_MODELS = {
 // ═══════════════════════ STATE ═══════════════════════
 const S = {
   candidato:{},
-  picking:  {correctos:0, errores:0, tiempoRestante:180, pedidoId:null},
-  ptl:      {secuencias:0, incidencias:0, tiempoRestante:120},
+  picking:  {correctos:0, errores:0, tiempoRestante:150, pedidoId:null},
+  ptl:      {secuencias:0, incidencias:0, tiempoRestante:90},
   packing:  {correctos:0, errores:0, tiempoRestante:60, sheetId:null},
-  cinta:    {correctos:0, errores:0, tiempoRestante:120, modelo:null},
-  apilado:  {correctos:0, respuestas:{}, modelo:null},
+  cinta:    {correctos:0, errores:0, tiempoRestante:90, modelo:null},
+  apilado:  {correctos:0, respuestas:{}, modelo:null, tiempoRestante:90},
 };
 
 let timerInt = null;
@@ -1584,7 +1584,7 @@ function startPicking(){
   document.getElementById('btn-end-pick').disabled=true;
   buildWarehouse();
   go('sc-picking');
-  const [stop, penalize] = startTimer(180,'t-picking',()=>{
+  const [stop, penalize] = startTimer(150,'t-picking',()=>{
     S.picking.tiempoRestante=0;
     showModal('Tiempo de picking agotado.',endPicking);
   });
@@ -1692,7 +1692,7 @@ function startPTL(){
   renderPTL();
   go('sc-ptl');
   updateNextBadge();
-  const [stop]=startTimer(120,'t-ptl',()=>{
+  const [stop]=startTimer(90,'t-ptl',()=>{
     S.ptl.tiempoRestante=0;
     showModal('Tiempo de PTL agotado.',endPTL);
   });
@@ -1842,7 +1842,7 @@ function startCinta(){
   document.getElementById('cinta-ok').textContent='0';
   document.getElementById('cinta-err').textContent='0';
   go('sc-cinta');
-  const [stop]=startTimer(120,'t-cinta',()=>{
+  const [stop]=startTimer(90,'t-cinta',()=>{
     S.cinta.tiempoRestante=0;
     showModal('Tiempo de cinta agotado.',endCinta);
   });
@@ -1894,7 +1894,7 @@ function startApilado(){
   document.getElementById('apilado-img').src=apiModel.img;
   renderApiladoAnswers();
   go('sc-apilado');
-  const [stop]=startTimer(120,'t-apilado',()=>{
+  const [stop]=startTimer(90,'t-apilado',()=>{
     showModal('Tiempo de apilado agotado.',endApilado);
   });
   window._apiStop=stop;
@@ -1940,11 +1940,11 @@ function endApilado(){
 function generateResult(){
   // --- SCORES POR ESTACIÓN ---
   const pickPrec  = pct(S.picking.correctos, S.picking.totalPicks||7);  // 0-100
-  const pickRitmo = behavScore(S.picking.tiempoRestante, 180, S.picking.errores); // 1-5
+  const pickRitmo = behavScore(S.picking.tiempoRestante, 150, S.picking.errores); // 1-5
   const pickOrg   = Math.max(1,5-Math.floor(S.picking.errores/2));
 
-  const ptlScore  = Math.min(100, S.ptl.secuencias*12);
-  const ptlRitmo  = behavScore(S.ptl.tiempoRestante, 120, 0);
+  const ptlScore  = Math.min(100, S.ptl.secuencias*20);
+  const ptlRitmo  = behavScore(S.ptl.tiempoRestante, 90, 0);
   const ptlConc   = S.ptl.secuencias>=6?5:S.ptl.secuencias>=4?4:S.ptl.secuencias>=2?3:S.ptl.secuencias>=1?2:1;
   const ptlOrg    = S.ptl.incidencias>0?Math.min(5,3+Math.floor(S.ptl.incidencias/2)):3;
 
@@ -1953,17 +1953,17 @@ function generateResult(){
   const packOrg   = Math.max(1,5-S.packing.errores);
 
   const cintaPrec = pct(S.cinta.correctos, cintaModel?.lista?.length||10);
-  const cintaRitmo= behavScore(S.cinta.tiempoRestante, 120, S.cinta.errores);
+  const cintaRitmo= behavScore(S.cinta.tiempoRestante, 90, S.cinta.errores);
   const cintaCtrl = Math.max(1,5-S.cinta.errores);
 
   const apiScore  = pct(S.apilado.correctos, 4);
 
   // --- PENALIZACIONES POR TIEMPO (a partir de la mitad, -1% cada 3s) ---
-  const pickTimePen  = timePenalty(S.picking.tiempoRestante, 180);
-  const ptlTimePen   = timePenalty(S.ptl.tiempoRestante,     120);
+  const pickTimePen  = timePenalty(S.picking.tiempoRestante, 150);
+  const ptlTimePen   = timePenalty(S.ptl.tiempoRestante,     90);
   const packTimePen  = timePenalty(S.packing.tiempoRestante, 60);
-  const cintaTimePen = timePenalty(S.cinta.tiempoRestante,   120);
-  const apiTimePen   = timePenalty(S.apilado.tiempoRestante, 120);
+  const cintaTimePen = timePenalty(S.cinta.tiempoRestante,   90);
+  const apiTimePen   = timePenalty(S.apilado.tiempoRestante, 90);
 
   const pickFinal  = Math.max(0, pickPrec  - pickTimePen);
   const ptlFinal   = Math.max(0, ptlScore  - ptlTimePen);
@@ -2013,14 +2013,14 @@ function generateResult(){
         <div class="big">${S.picking.correctos}<span style="font-size:1rem;color:var(--text3)">/${S.picking.totalPicks||6}</span></div>
         ${stars(pickPrec)}
         <div class="sub">Errores: ${S.picking.errores} · Pedido nº${S.picking.pedidoId||'—'}</div>
-        <div class="sub" style="color:#6b7280">⏱ Realizado en ${fmtUsed(S.picking.tiempoRestante,180)}</div>
+        <div class="sub" style="color:#6b7280">⏱ Realizado en ${fmtUsed(S.picking.tiempoRestante,150)}</div>
       </div>
       <div class="result-card">
         <h4>🃏 PTL</h4>
         <div class="big">${S.ptl.secuencias}<span style="font-size:.9rem;color:#374151"> seq.</span></div>
         ${stars(ptlScore)}
         <div class="sub">Incidencias: ${S.ptl.incidencias}</div>
-        <div class="sub" style="color:#6b7280">⏱ Realizado en ${fmtUsed(S.ptl.tiempoRestante,120)}</div>
+        <div class="sub" style="color:#6b7280">⏱ Realizado en ${fmtUsed(S.ptl.tiempoRestante,90)}</div>
       </div>
       <div class="result-card">
         <h4>📦 Packing</h4>
@@ -2034,7 +2034,7 @@ function generateResult(){
         <div class="big">${S.cinta.correctos}<span style="font-size:.9rem;color:#374151"> + ${S.apilado.correctos}/4</span></div>
         ${stars((cintaPrec+apiScore)/2)}
         <div class="sub">Cinta: ${S.cinta.correctos}/${cintaModel?.lista?.length||10} · Apilado: ${S.apilado.correctos}/4</div>
-        <div class="sub" style="color:#6b7280">⏱ Cinta ${fmtUsed(S.cinta.tiempoRestante,120)} · Apilado ${fmtUsed(S.apilado.tiempoRestante,120)}</div>
+        <div class="sub" style="color:#6b7280">⏱ Cinta ${fmtUsed(S.cinta.tiempoRestante,90)} · Apilado ${fmtUsed(S.apilado.tiempoRestante,90)}</div>
       </div>
     </div>
 
@@ -2090,11 +2090,11 @@ function sendResultEmail(scores){
     movilidad:    c.mov,
     puntuacion:   `${scores.global}%`,
     aptitud:      scores.aptBadge,
-    picking:      `${S.picking.correctos}/${S.picking.totalPicks||6} picks · ${S.picking.errores} errores · ${scores.pickPrec}% · Tiempo: ${fmtUsed(S.picking.tiempoRestante,180)}`,
-    ptl:          `${S.ptl.secuencias} secuencias · ${S.ptl.incidencias} incidencias · ${scores.ptlScore}% · Tiempo: ${fmtUsed(S.ptl.tiempoRestante,120)}`,
+    picking:      `${S.picking.correctos}/${S.picking.totalPicks||6} picks · ${S.picking.errores} errores · ${scores.pickPrec}% · Tiempo: ${fmtUsed(S.picking.tiempoRestante,150)}`,
+    ptl:          `${S.ptl.secuencias} secuencias · ${S.ptl.incidencias} incidencias · ${scores.ptlScore}% · Tiempo: ${fmtUsed(S.ptl.tiempoRestante,90)}`,
     packing:      `${S.packing.correctos}/3 sobres · ${S.packing.errores} errores · ${scores.packPrec}% · Tiempo: ${fmtUsed(S.packing.tiempoRestante,60)}`,
-    cinta:        `${S.cinta.correctos}/${cintaModel?.lista?.length||10} operadores · ${S.cinta.errores} errores · ${scores.cintaPrec}% · Tiempo: ${fmtUsed(S.cinta.tiempoRestante,120)}`,
-    apilado:      `${S.apilado.correctos}/4 respuestas · ${scores.apiScore}% · Tiempo: ${fmtUsed(S.apilado.tiempoRestante,120)}`,
+    cinta:        `${S.cinta.correctos}/${cintaModel?.lista?.length||10} operadores · ${S.cinta.errores} errores · ${scores.cintaPrec}% · Tiempo: ${fmtUsed(S.cinta.tiempoRestante,90)}`,
+    apilado:      `${S.apilado.correctos}/4 respuestas · ${scores.apiScore}% · Tiempo: ${fmtUsed(S.apilado.tiempoRestante,90)}`,
   };
 
   emailjs.send('Attitude-resend', 'Attitude-resend-template', params)

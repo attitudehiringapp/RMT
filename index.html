@@ -2090,11 +2090,16 @@ function sendResultEmail(scores){
     movilidad:    c.mov,
     puntuacion:   `${scores.global}%`,
     aptitud:      scores.aptBadge,
-    picking:      `${S.picking.correctos}/${S.picking.totalPicks||6} picks · ${S.picking.errores} errores · ${scores.pickPrec}% · Tiempo: ${fmtUsed(S.picking.tiempoRestante,150)}`,
-    ptl:          `${S.ptl.secuencias} secuencias · ${S.ptl.incidencias} incidencias · ${scores.ptlScore}% · Tiempo: ${fmtUsed(S.ptl.tiempoRestante,90)}`,
-    packing:      `${S.packing.correctos}/3 sobres · ${S.packing.errores} errores · ${scores.packPrec}% · Tiempo: ${fmtUsed(S.packing.tiempoRestante,60)}`,
-    cinta:        `${S.cinta.correctos}/${cintaModel?.lista?.length||10} operadores · ${S.cinta.errores} errores · ${scores.cintaPrec}% · Tiempo: ${fmtUsed(S.cinta.tiempoRestante,90)}`,
-    apilado:      `${S.apilado.correctos}/4 respuestas · ${scores.apiScore}% · Tiempo: ${fmtUsed(S.apilado.tiempoRestante,90)}`,
+    picking:      `${S.picking.correctos}/${S.picking.totalPicks||6} picks · ${S.picking.errores} errores · ${scores.pickPrec}%`,
+    picking_t:    fmtUsed(S.picking.tiempoRestante, 150),
+    ptl:          `${S.ptl.secuencias} secuencias · ${S.ptl.incidencias} incidencias · ${scores.ptlScore}%`,
+    ptl_t:        fmtUsed(S.ptl.tiempoRestante, 90),
+    packing:      `${S.packing.correctos}/3 sobres · ${S.packing.errores} errores · ${scores.packPrec}%`,
+    packing_t:    fmtUsed(S.packing.tiempoRestante, 60),
+    cinta:        `${S.cinta.correctos}/${cintaModel?.lista?.length||10} operadores · ${S.cinta.errores} errores · ${scores.cintaPrec}%`,
+    cinta_t:      fmtUsed(S.cinta.tiempoRestante, 90),
+    apilado:      `${S.apilado.correctos}/4 respuestas · ${scores.apiScore}%`,
+    apilado_t:    fmtUsed(S.apilado.tiempoRestante, 90),
   };
 
   emailjs.send('Attitude-resend', 'Attitude-resend-template', params)

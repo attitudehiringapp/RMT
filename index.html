@@ -1975,10 +1975,10 @@ function generateResult(){
 
   // --- APTITUD ---
   let aptBadge, aptClass, aptDesc;
-  if(global>=80){        aptBadge='APTO +++'; aptClass='ba3'; aptDesc='Candidato/a con rendimiento excelente. Recomendado para incorporación inmediata.'; }
-  else if(global>=65){   aptBadge='APTO ++';  aptClass='ba2'; aptDesc='Buen desempeño global. Candidato/a con alta capacidad operativa.'; }
-  else if(global>=50){   aptBadge='APTO +';   aptClass='ba';  aptDesc='Desempeño correcto. Candidato/a con potencial de desarrollo.'; }
-  else if(global>=35){   aptBadge='APTO';     aptClass='ba';  aptDesc='Desempeño básico. Puede mejorar con formación específica.'; }
+  if(global>=95){        aptBadge='APTO +++'; aptClass='ba3'; aptDesc='Candidato/a con rendimiento excelente. Recomendado para incorporación inmediata.'; }
+  else if(global>=85){   aptBadge='APTO ++';  aptClass='ba2'; aptDesc='Buen desempeño global. Candidato/a con alta capacidad operativa.'; }
+  else if(global>=75){   aptBadge='APTO +';   aptClass='ba2'; aptDesc='Desempeño correcto. Candidato/a con potencial de desarrollo.'; }
+  else if(global>=50){   aptBadge='APTO';     aptClass='ba';  aptDesc='Desempeño básico. Puede mejorar con formación específica.'; }
   else{                  aptBadge='NO APTO';  aptClass='bna'; aptDesc='El desempeño global no alcanza el mínimo operativo requerido.'; }
 
   // Render observable bars (1–5 converted to %)

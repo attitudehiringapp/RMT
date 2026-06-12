@@ -174,9 +174,9 @@ select option{background:#fff;color:var(--text)}
 .pedido-num{font-size:.75rem;font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
 
 /* EXPEDICIONES */
-.exp-layout{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.exp-layout{display:grid;grid-template-columns:1fr 2fr;gap:20px}
 .lista-img img{width:100%;border-radius:10px;display:block}
-.sobres-mesa{display:flex;flex-wrap:wrap;gap:6px;padding:14px;background:rgba(0,0,0,.25);border-radius:10px;border:2px dashed var(--border);min-height:90px}
+.sobres-mesa{display:flex;flex-wrap:wrap;gap:8px;padding:16px;background:rgba(0,0,0,.25);border-radius:10px;border:2px dashed var(--border);min-height:160px;align-content:flex-start}
 .s-sobre{padding:7px 12px;border-radius:6px;font-size:.75rem;font-weight:600;cursor:pointer;transition:all .15s;border-left:4px solid transparent;user-select:none}
 .s-sobre:hover{transform:scale(1.04)}
 .s-sobre.az{background:rgba(59,130,246,.15);border-left-color:#3b82f6;color:#111827}
@@ -973,7 +973,7 @@ select option{background:#fff;color:var(--text)}
   </div>
   <div class="body-scroll">
     <div class="body-wide">
-      <div style="max-width:520px;margin:0 auto">
+      <div>
         <div style="font-size:.72rem;color:#374151;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">📋 Hoja de pedidos — selecciona el sobre correcto para cada uno</div>
         <div id="packing-pedidos"></div>
         <button class="btn btn-success" onclick="endPacking()" style="margin-top:12px;width:100%">✓ Finalizar Packing</button>

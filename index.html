@@ -973,16 +973,10 @@ select option{background:#fff;color:var(--text)}
   </div>
   <div class="body-scroll">
     <div class="body-wide">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
-        <div>
-          <div style="font-size:.72rem;color:#374151;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">📋 Tu hoja de pedidos</div>
-          <div class="packing-sheet-img"><img id="packing-img" src="" alt="Hoja de pedidos packing"></div>
-        </div>
-        <div>
-          <div style="font-size:.72rem;color:#374151;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">📬 Selecciona el sobre para cada pedido</div>
-          <div id="packing-pedidos"></div>
-          <button class="btn btn-success" onclick="endPacking()" style="margin-top:8px;width:100%">✓ Finalizar Packing</button>
-        </div>
+      <div style="max-width:520px;margin:0 auto">
+        <div style="font-size:.72rem;color:#374151;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">📋 Hoja de pedidos — selecciona el sobre correcto para cada uno</div>
+        <div id="packing-pedidos"></div>
+        <button class="btn btn-success" onclick="endPacking()" style="margin-top:12px;width:100%">✓ Finalizar Packing</button>
       </div>
     </div>
   </div>
@@ -1508,11 +1502,13 @@ function stars(score){
   const n=Math.round(score/20);
   return '<span class="stars">'+'★'.repeat(Math.max(0,n))+'☆'.repeat(Math.max(0,5-n))+'</span>';
 }
-function timeStars(remaining, total){
+function timeStarsN(remaining, total){
   const used = total - (remaining||0);
-  let n;
-  if(used <= 20) n = 5;
-  else n = Math.round(5 * Math.max(0, 1 - (used - 20) / (total - 20)));
+  if(used <= 20) return 5;
+  return Math.round(5 * Math.max(0, 1 - (used - 20) / (total - 20)));
+}
+function timeStars(remaining, total){
+  const n = timeStarsN(remaining, total);
   return '<span class="stars">'+'★'.repeat(n)+'☆'.repeat(5-n)+'</span>';
 }
 
@@ -1743,13 +1739,13 @@ function endPTL(){
 }
 
 // ═══════════════════════ PACKING ═══════════════════════
-let packSheet=null, packSels={};
+let packSheets=[], packSels={};
 
 function startPacking(){
-  packSheet=PACKING_SHEETS[Math.floor(Math.random()*PACKING_SHEETS.length)];
-  S.packing.sheetId=packSheet.id;
+  const shuffled=[...PACKING_SHEETS].sort(()=>Math.random()-.5);
+  packSheets=[shuffled[0], shuffled[1]];
+  S.packing.sheetId=packSheets[0].id*10+packSheets[1].id;
   packSels={};
-  document.getElementById('packing-img').src=packSheet.img;
   renderPackingPedidos();
   go('sc-packing');
   const [stop]=startTimer(60,'t-packing',()=>{
@@ -1761,32 +1757,34 @@ function startPacking(){
 
 function renderPackingPedidos(){
   const cont=document.getElementById('packing-pedidos');
-  cont.innerHTML=packSheet.pedidos.map(p=>`
-    <div class="pedido-block" id="pb-${p.n}">
-      <div class="pedido-num">Pedido ${p.n}</div>
-      <div class="sobre-opts">
-        ${['S','M','L'].map(sz=>`
-          <div class="sobre-opt" id="ps-${p.n}-${sz}" onclick="selectSobre(${p.n},'${sz}')">
-            <div class="sobre-letter">${sz}</div>
-          </div>`).join('')}
-      </div>
+  cont.innerHTML=packSheets.map((sheet,si)=>`
+    <div style="margin-bottom:12px">
+      <img src="${sheet.img}" style="width:100%;border-radius:8px;margin-bottom:6px;display:block">
+      ${sheet.pedidos.map((p,pi)=>{ const gn=si*3+pi+1; return `
+      <div class="pedido-block" id="pb-${gn}">
+        <div class="pedido-num">Pedido ${gn}</div>
+        <div class="sobre-opts">
+          ${['S','M','L'].map(sz=>`
+            <div class="sobre-opt" id="ps-${gn}-${sz}" onclick="selectSobre(${gn},'${sz}','${p.correcto}')">
+              <div class="sobre-letter">${sz}</div>
+            </div>`).join('')}
+        </div>
+      </div>`; }).join('')}
     </div>`).join('');
 }
 
-function selectSobre(pedidoN, sz){
-  packSels[pedidoN]=sz;
-  ['S','M','L'].forEach(s=>document.getElementById(`ps-${pedidoN}-${s}`)?.classList.remove('sel'));
-  document.getElementById(`ps-${pedidoN}-${sz}`)?.classList.add('sel');
-  document.getElementById(`pb-${pedidoN}`)?.classList.add('done');
+function selectSobre(gn, sz, correcto){
+  packSels[gn]={sel:sz, correcto};
+  ['S','M','L'].forEach(s=>document.getElementById(`ps-${gn}-${s}`)?.classList.remove('sel'));
+  document.getElementById(`ps-${gn}-${sz}`)?.classList.add('sel');
+  document.getElementById(`pb-${gn}`)?.classList.add('done');
 }
 
 function endPacking(){
   if(window._packStop) S.packing.tiempoRestante=window._packStop()||0;
   stopTimer();
   let ok=0,err=0;
-  packSheet.pedidos.forEach(p=>{
-    if(packSels[p.n]){ if(packSels[p.n]===p.correcto)ok++;else err++; }
-  });
+  Object.values(packSels).forEach(({sel,correcto})=>{ if(sel===correcto)ok++;else err++; });
   S.packing.correctos=ok; S.packing.errores=err;
   go('sc-inst-exp');
 }
@@ -1932,7 +1930,7 @@ function generateResult(){
   const ptlConc   = S.ptl.secuencias>=6?5:S.ptl.secuencias>=4?4:S.ptl.secuencias>=2?3:S.ptl.secuencias>=1?2:1;
   const ptlOrg    = S.ptl.incidencias>0?Math.min(5,3+Math.floor(S.ptl.incidencias/2)):3;
 
-  const packPrec  = pct(S.packing.correctos, 3);
+  const packPrec  = pct(S.packing.correctos, 6);
   const packRitmo = behavScore(S.packing.tiempoRestante, 60, S.packing.errores);
   const packOrg   = Math.max(1,5-S.packing.errores);
 
@@ -1942,18 +1940,18 @@ function generateResult(){
 
   const apiScore  = pct(S.apilado.correctos, 4);
 
-  // --- PENALIZACIONES POR TIEMPO (a partir de la mitad, -1% cada 3s) ---
-  const pickTimePen  = timePenalty(S.picking.tiempoRestante, 150);
-  const ptlTimePen   = timePenalty(S.ptl.tiempoRestante,     90);
-  const packTimePen  = timePenalty(S.packing.tiempoRestante, 60);
-  const cintaTimePen = timePenalty(S.cinta.tiempoRestante,   90);
-  const apiTimePen   = timePenalty(S.apilado.tiempoRestante, 90);
+  // --- PUNTUACIÓN FINAL POR ESTACIÓN (estrellas de tiempo como multiplicador) ---
+  const pickStars  = timeStarsN(S.picking.tiempoRestante, 150);
+  const ptlStars   = timeStarsN(S.ptl.tiempoRestante,     90);
+  const packStars  = timeStarsN(S.packing.tiempoRestante, 60);
+  const cintaStars = timeStarsN(S.cinta.tiempoRestante,   90);
+  const apiStars   = timeStarsN(S.apilado.tiempoRestante, 90);
 
-  const pickFinal  = Math.max(0, pickPrec  - pickTimePen);
-  const ptlFinal   = Math.max(0, ptlScore  - ptlTimePen);
-  const packFinal  = Math.max(0, packPrec  - packTimePen);
-  const cintaFinal = Math.max(0, cintaPrec - cintaTimePen);
-  const apiFinal   = Math.max(0, apiScore  - apiTimePen);
+  const pickFinal  = Math.round(pickPrec  * pickStars  / 5);
+  const ptlFinal   = Math.round(ptlScore  * ptlStars   / 5);
+  const packFinal  = Math.round(packPrec  * packStars  / 5);
+  const cintaFinal = Math.round(cintaPrec * cintaStars / 5);
+  const apiFinal   = Math.round(apiScore  * apiStars   / 5);
 
   // --- GLOBAL ---
   const totalErrores = (S.picking.errores||0) + (S.packing.errores||0) + (S.cinta.errores||0);
@@ -2008,7 +2006,7 @@ function generateResult(){
       </div>
       <div class="result-card">
         <h4>📦 Packing</h4>
-        <div class="big">${S.packing.correctos}<span style="font-size:1rem;color:#374151">/3</span></div>
+        <div class="big">${S.packing.correctos}<span style="font-size:1rem;color:#374151">/6</span></div>
         ${timeStars(S.packing.tiempoRestante, 60)}
         <div class="sub">Sobres correctos · Hoja nº${S.packing.sheetId||'—'}</div>
         <div class="sub" style="color:#6b7280">⏱ Realizado en ${fmtUsed(S.packing.tiempoRestante,60)}</div>
@@ -2041,7 +2039,7 @@ function generateResult(){
         <tr style="border-bottom:1px solid var(--border)"><th style="text-align:left;padding:6px 4px;color:#374151">Estación</th><th style="padding:6px 4px;color:#374151">Resultado</th><th style="padding:6px 4px;color:#374151">Puntuación</th></tr>
         <tr style="border-bottom:1px solid var(--border)"><td style="padding:7px 4px">Picking</td><td style="padding:7px 4px">${S.picking.correctos}/${S.picking.totalPicks||6} picks · ${S.picking.errores} errores</td><td style="padding:7px 4px;font-weight:700;color:${pickPrec>=70?'#4ade80':pickPrec>=40?'#facc15':'#f87171'}">${pickPrec}%</td></tr>
         <tr style="border-bottom:1px solid var(--border)"><td style="padding:7px 4px">PTL</td><td style="padding:7px 4px">${S.ptl.secuencias} secuencias · ${S.ptl.incidencias} incidencias</td><td style="padding:7px 4px;font-weight:700;color:${ptlScore>=70?'#4ade80':ptlScore>=40?'#facc15':'#f87171'}">${ptlScore}%</td></tr>
-        <tr style="border-bottom:1px solid var(--border)"><td style="padding:7px 4px">Packing</td><td style="padding:7px 4px">${S.packing.correctos}/3 sobres correctos · ${S.packing.errores} errores</td><td style="padding:7px 4px;font-weight:700;color:${packPrec>=70?'#4ade80':packPrec>=40?'#facc15':'#f87171'}">${packPrec}%</td></tr>
+        <tr style="border-bottom:1px solid var(--border)"><td style="padding:7px 4px">Packing</td><td style="padding:7px 4px">${S.packing.correctos}/6 sobres correctos · ${S.packing.errores} errores</td><td style="padding:7px 4px;font-weight:700;color:${packPrec>=70?'#4ade80':packPrec>=40?'#facc15':'#f87171'}">${packPrec}%</td></tr>
         <tr style="border-bottom:1px solid var(--border)"><td style="padding:7px 4px">Cinta</td><td style="padding:7px 4px">${S.cinta.correctos}/${cintaModel?.lista?.length||10} sobres correctos · ${S.cinta.errores} errores</td><td style="padding:7px 4px;font-weight:700;color:${cintaPrec>=70?'#4ade80':cintaPrec>=40?'#facc15':'#f87171'}">${cintaPrec}%</td></tr>
         <tr><td style="padding:7px 4px">Apilado</td><td style="padding:7px 4px">${S.apilado.correctos}/4 respuestas correctas</td><td style="padding:7px 4px;font-weight:700;color:${apiScore>=70?'#4ade80':apiScore>=40?'#facc15':'#f87171'}">${apiScore}%</td></tr>
       </table>
@@ -2078,7 +2076,7 @@ function sendResultEmail(scores){
     picking_t:    fmtUsed(S.picking.tiempoRestante, 150),
     ptl:          `${S.ptl.secuencias} secuencias · ${S.ptl.incidencias} incidencias · ${scores.ptlScore}%`,
     ptl_t:        fmtUsed(S.ptl.tiempoRestante, 90),
-    packing:      `${S.packing.correctos}/3 sobres · ${S.packing.errores} errores · ${scores.packPrec}%`,
+    packing:      `${S.packing.correctos}/6 sobres · ${S.packing.errores} errores · ${scores.packPrec}%`,
     packing_t:    fmtUsed(S.packing.tiempoRestante, 60),
     cinta:        `${S.cinta.correctos}/${cintaModel?.lista?.length||10} operadores · ${S.cinta.errores} errores · ${scores.cintaPrec}%`,
     cinta_t:      fmtUsed(S.cinta.tiempoRestante, 90),

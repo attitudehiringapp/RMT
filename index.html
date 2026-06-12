@@ -1242,8 +1242,8 @@ select option{background:#fff;color:var(--text)}
 <!-- ══════════════ MODAL TIEMPO ══════════════ -->
 <div id="modal-time" class="modal-overlay">
   <div class="modal-box">
-    <div class="modal-icon">⏰</div>
-    <h2>¡Tiempo agotado!</h2>
+    <div class="modal-icon" id="modal-icon-el">⏰</div>
+    <h2 id="modal-title">¡Tiempo agotado!</h2>
     <p id="modal-msg">Se ha agotado el tiempo para esta estación.</p>
     <button class="btn btn-primary" id="modal-btn">Continuar →</button>
   </div>
@@ -1481,8 +1481,10 @@ function startTimer(secs, displayId, onEnd){
 
 function stopTimer(){ clearInterval(timerInt); }
 
-function showModal(msg, cb){
+function showModal(msg, cb, title, icon){
   document.getElementById('modal-msg').textContent=msg;
+  document.getElementById('modal-title').textContent=title||'¡Tiempo agotado!';
+  document.getElementById('modal-icon-el').textContent=icon||'⏰';
   const overlay=document.getElementById('modal-time');
   overlay.classList.add('open');
   document.getElementById('modal-btn').onclick=()=>{ overlay.classList.remove('open'); cb(); };
@@ -1537,7 +1539,7 @@ function showPreStart(){
   const vacios = campos.filter(c=>!document.getElementById(c.id).value.trim()).map(c=>c.label);
   grupos.forEach(g=>{ if(!document.querySelector(`#${g.id} div.checked`)) vacios.push(g.label); });
   if(vacios.length){
-    alert('📋 Por favor, completa el formulario con tus datos antes de continuar');
+    showModal('Por favor, completa el formulario con tus datos antes de continuar.', ()=>{}, '📋 Formulario incompleto', '📋');
     return;
   }
   const nombre = document.getElementById('r-nombre').value.trim();

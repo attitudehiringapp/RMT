@@ -1537,7 +1537,7 @@ function showPreStart(){
   const vacios = campos.filter(c=>!document.getElementById(c.id).value.trim()).map(c=>c.label);
   grupos.forEach(g=>{ if(!document.querySelector(`#${g.id} div.checked`)) vacios.push(g.label); });
   if(vacios.length){
-    showModal('Por favor, completa los siguientes campos antes de continuar:\n\n• '+vacios.join('\n• '), ()=>{});
+    alert('📋 Por favor, completa el formulario con tus datos antes de continuar');
     return;
   }
   const nombre = document.getElementById('r-nombre').value.trim();

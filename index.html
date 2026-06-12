@@ -1520,12 +1520,12 @@ function showModal(msg, cb){
 function pct(a,b){ return b>0?Math.round(a/b*100):0; }
 function fmtSecs(s){ const m=Math.floor(s/60),sec=s%60; return `${m}:${sec.toString().padStart(2,'0')}`; }
 function fmtUsed(remaining, total){ return `${fmtSecs(total-(remaining||0))} / ${fmtSecs(total)}`; }
-// Penalización por tiempo: a partir de la mitad del tiempo, -1% cada 3 segundos
+// Penalización por tiempo: a partir del primer tercio, -1% por segundo
 function timePenalty(tiempoRestante, totalTime){
   const used = totalTime - (tiempoRestante||0);
-  const half = totalTime / 2;
-  if(used <= half) return 0;
-  return Math.floor((used - half) / 3);
+  const threshold = totalTime / 3;
+  if(used <= threshold) return 0;
+  return Math.floor(used - threshold);
 }
 function stars(score){
   const n=Math.round(score/20);
@@ -1973,7 +1973,7 @@ function generateResult(){
 
   // --- GLOBAL ---
   const totalErrores = (S.picking.errores||0) + (S.packing.errores||0) + (S.cinta.errores||0);
-  const global = Math.max(0, Math.round((pickFinal*0.25 + ptlFinal*0.2 + packFinal*0.2 + cintaFinal*0.2 + apiFinal*0.15)) - totalErrores*5);
+  const global = Math.max(0, Math.round((pickFinal*0.25 + ptlFinal*0.2 + packFinal*0.2 + cintaFinal*0.2 + apiFinal*0.15)) - totalErrores*8);
 
   // --- APTITUD ---
   let aptBadge, aptClass, aptDesc;

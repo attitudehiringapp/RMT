@@ -916,8 +916,8 @@ select option{background:#fff;color:var(--text)}
       <div class="card card-blue" style="padding:8px 12px;margin-bottom:8px">
         <h3 style="margin-bottom:4px;font-size:.95rem">¿Qué tienes que hacer?</h3>
         <ul style="margin:0;padding-left:18px;font-size:.82rem;line-height:1.4">
-          <li>Tendrás una <strong>hoja de pedidos</strong> con 3 pedidos, cada uno con sus prendas.</li>
-          <li>Selecciona el sobre según la prenda más grande: <strong>S</strong> (camisetas) · <strong>M</strong> (pantalón/jersey) · <strong>L</strong> (chaqueta/chaleco).</li>
+          <li>Tendrás una <strong>hoja de pedidos</strong> con 3 pedidos, cada uno con sus prendas. <em>(lado izquierdo)</em></li>
+          <li>En el lado derecho selecciona el sobre según la prenda más grande: <strong>S</strong> (camisetas) · <strong>M</strong> (pantalón/jersey) · <strong>L</strong> (chaqueta/chaleco).</li>
           <li>Si hay <strong>varias prendas</strong>: elige el sobre de la prenda <strong>más grande</strong>.</li>
           <li>Tienes <strong>1 minuto</strong>.</li>
         </ul>
@@ -928,29 +928,18 @@ select option{background:#fff;color:var(--text)}
         <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);text-align:center;margin-bottom:4px">📦 Ejemplo visual de la prueba</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
 
-          <!-- Izquierda: hoja de pedidos mock -->
+          <!-- Izquierda: imagen de ejemplo -->
           <div>
             <div style="font-size:.68rem;font-weight:700;color:#374151;margin-bottom:3px;text-align:center">📋 Tu hoja de pedidos</div>
-            <div style="background:var(--blue-light);border:1px solid var(--border);border-radius:10px;padding:6px;font-size:.7rem">
-              <div style="font-weight:700;color:var(--orange);font-size:.66rem;text-transform:uppercase;margin-bottom:3px">Pedido 1</div>
-              <div style="display:flex;flex-direction:column;gap:1px;margin-bottom:6px">
-                <span style="background:#fff;border:1px solid var(--border);border-radius:4px;padding:1px 5px;color:#111827">Camiseta × 2</span>
-                <span style="background:#fff;border:1px solid var(--border);border-radius:4px;padding:1px 5px;color:#111827">Pantalón × 1</span>
-              </div>
-              <div style="font-weight:700;color:var(--orange);font-size:.66rem;text-transform:uppercase;margin-bottom:3px">Pedido 2</div>
-              <div style="display:flex;flex-direction:column;gap:1px">
-                <span style="background:#fff;border:1px solid var(--border);border-radius:4px;padding:1px 5px;color:#111827">Camiseta × 1</span>
-                <span style="background:#fff;border:1px solid var(--border);border-radius:4px;padding:1px 5px;color:#111827">Pantalón × 1</span>
-                <span style="background:#fff;border:1px solid var(--border);border-radius:4px;padding:1px 5px;color:#111827">Chaqueta × 1</span>
-              </div>
-            </div>
+            <img src="img/ejemplo_packing.png" style="width:100%;border-radius:8px;display:block">
           </div>
 
-          <!-- Derecha: selección de sobres -->
+          <!-- Derecha: respuesta correcta M -->
           <div>
-            <div style="font-size:.68rem;font-weight:700;color:#374151;margin-bottom:3px;text-align:center">📬 Selecciona el sobre</div>
-            <div style="background:var(--blue-light);border:2px solid #16a34a;border-radius:8px;padding:5px;margin-bottom:5px">
-              <div style="font-size:.68rem;font-weight:700;color:var(--orange);margin-bottom:3px">PEDIDO 1</div>
+            <div style="font-size:.68rem;font-weight:700;color:#374151;margin-bottom:3px;text-align:center">📬 Respuesta correcta</div>
+            <div style="background:var(--blue-light);border:2px solid #16a34a;border-radius:8px;padding:8px">
+              <div style="font-size:.68rem;font-weight:700;color:var(--orange);margin-bottom:6px">PEDIDO 2 → sobre M</div>
+              <div style="font-size:.7rem;color:#374151;margin-bottom:6px">Pantalón es la prenda más grande → sobre <strong>M</strong></div>
               <div class="sobre-opts" style="margin-top:0;gap:4px">
                 <div class="sobre-opt" style="padding:4px 3px">
                   <div class="sobre-letter" style="font-size:1.1rem">S</div>
@@ -959,20 +948,6 @@ select option{background:#fff;color:var(--text)}
                   <div class="sobre-letter" style="font-size:1.1rem">M</div>
                 </div>
                 <div class="sobre-opt" style="padding:4px 3px">
-                  <div class="sobre-letter" style="font-size:1.1rem">L</div>
-                </div>
-              </div>
-            </div>
-            <div style="background:var(--blue-light);border:2px solid #db2777;border-radius:8px;padding:5px">
-              <div style="font-size:.68rem;font-weight:700;color:var(--orange);margin-bottom:3px">PEDIDO 2</div>
-              <div class="sobre-opts" style="margin-top:0;gap:4px">
-                <div class="sobre-opt" style="padding:4px 3px">
-                  <div class="sobre-letter" style="font-size:1.1rem">S</div>
-                </div>
-                <div class="sobre-opt" style="padding:4px 3px">
-                  <div class="sobre-letter" style="font-size:1.1rem">M</div>
-                </div>
-                <div class="sobre-opt sel" style="padding:4px 3px">
                   <div class="sobre-letter" style="font-size:1.1rem">L</div>
                 </div>
               </div>

@@ -1758,18 +1758,20 @@ function startPacking(){
 function renderPackingPedidos(){
   const cont=document.getElementById('packing-pedidos');
   cont.innerHTML=packSheets.map((sheet,si)=>`
-    <div style="margin-bottom:12px">
-      <img src="${sheet.img}" style="width:100%;border-radius:8px;margin-bottom:6px;display:block">
-      ${sheet.pedidos.map((p,pi)=>{ const gn=si*3+pi+1; return `
-      <div class="pedido-block" id="pb-${gn}">
-        <div class="pedido-num">Pedido ${gn}</div>
-        <div class="sobre-opts">
-          ${['S','M','L'].map(sz=>`
-            <div class="sobre-opt" id="ps-${gn}-${sz}" onclick="selectSobre(${gn},'${sz}','${p.correcto}')">
-              <div class="sobre-letter">${sz}</div>
-            </div>`).join('')}
-        </div>
-      </div>`; }).join('')}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;align-items:start">
+      <img src="${sheet.img}" style="width:100%;border-radius:8px;display:block">
+      <div>
+        ${sheet.pedidos.map((p,pi)=>{ const gn=si*3+pi+1; return `
+        <div class="pedido-block" id="pb-${gn}" style="margin-bottom:6px">
+          <div class="pedido-num">Pedido ${gn}</div>
+          <div class="sobre-opts">
+            ${['S','M','L'].map(sz=>`
+              <div class="sobre-opt" id="ps-${gn}-${sz}" onclick="selectSobre(${gn},'${sz}','${p.correcto}')">
+                <div class="sobre-letter">${sz}</div>
+              </div>`).join('')}
+          </div>
+        </div>`; }).join('')}
+      </div>
     </div>`).join('');
 }
 

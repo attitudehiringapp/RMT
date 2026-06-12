@@ -1727,10 +1727,10 @@ function clickPTL(id){
   }
   const expected=PTL_ORDER[ptlCurrent.length];
   if(t.color!==expected){
-    // Flash wrong
     const cards=document.querySelectorAll('.ptl-card');
     cards[ptlPool.indexOf(t)].classList.add('wrong');
     setTimeout(()=>cards[ptlPool.indexOf(t)]?.classList.remove('wrong'),500);
+    showErrorToast();
     return;
   }
   t.used=true;

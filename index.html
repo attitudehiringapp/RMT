@@ -1508,6 +1508,13 @@ function stars(score){
   const n=Math.round(score/20);
   return '<span class="stars">'+'★'.repeat(Math.max(0,n))+'☆'.repeat(Math.max(0,5-n))+'</span>';
 }
+function timeStars(remaining, total){
+  const used = total - (remaining||0);
+  let n;
+  if(used <= 20) n = 5;
+  else n = Math.round(5 * Math.max(0, 1 - (used - 20) / (total - 20)));
+  return '<span class="stars">'+'★'.repeat(n)+'☆'.repeat(5-n)+'</span>';
+}
 
 // Behavioral score inferred from time+errors
 function behavScore(tiempoRestante, totalTiempo, errores){
@@ -1988,28 +1995,28 @@ function generateResult(){
       <div class="result-card">
         <h4>🗂️ Picking</h4>
         <div class="big">${S.picking.correctos}<span style="font-size:1rem;color:var(--text3)">/${S.picking.totalPicks||6}</span></div>
-        ${stars(pickPrec)}
+        ${timeStars(S.picking.tiempoRestante, 150)}
         <div class="sub">Errores: ${S.picking.errores} · Pedido nº${S.picking.pedidoId||'—'}</div>
         <div class="sub" style="color:#6b7280">⏱ Realizado en ${fmtUsed(S.picking.tiempoRestante,150)}</div>
       </div>
       <div class="result-card">
         <h4>🃏 PTL</h4>
         <div class="big">${S.ptl.secuencias}<span style="font-size:.9rem;color:#374151"> seq.</span></div>
-        ${stars(ptlScore)}
+        ${timeStars(S.ptl.tiempoRestante, 90)}
         <div class="sub">Incidencias: ${S.ptl.incidencias}</div>
         <div class="sub" style="color:#6b7280">⏱ Realizado en ${fmtUsed(S.ptl.tiempoRestante,90)}</div>
       </div>
       <div class="result-card">
         <h4>📦 Packing</h4>
         <div class="big">${S.packing.correctos}<span style="font-size:1rem;color:#374151">/3</span></div>
-        ${stars(packPrec)}
+        ${timeStars(S.packing.tiempoRestante, 60)}
         <div class="sub">Sobres correctos · Hoja nº${S.packing.sheetId||'—'}</div>
         <div class="sub" style="color:#6b7280">⏱ Realizado en ${fmtUsed(S.packing.tiempoRestante,60)}</div>
       </div>
       <div class="result-card">
         <h4>🚚 Expediciones</h4>
         <div class="big">${S.cinta.correctos}<span style="font-size:.9rem;color:#374151"> + ${S.apilado.correctos}/4</span></div>
-        ${stars((cintaPrec+apiScore)/2)}
+        ${timeStars((S.cinta.tiempoRestante+S.apilado.tiempoRestante)/2, 90)}
         <div class="sub">Cinta: ${S.cinta.correctos}/${cintaModel?.lista?.length||10} · Apilado: ${S.apilado.correctos}/4</div>
         <div class="sub" style="color:#6b7280">⏱ Cinta ${fmtUsed(S.cinta.tiempoRestante,90)} · Apilado ${fmtUsed(S.apilado.tiempoRestante,90)}</div>
       </div>

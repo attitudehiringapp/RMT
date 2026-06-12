@@ -174,9 +174,10 @@ select option{background:#fff;color:var(--text)}
 .pedido-num{font-size:.75rem;font-weight:700;color:var(--orange);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
 
 /* EXPEDICIONES */
-.exp-layout{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-.lista-img img{width:100%;border-radius:10px;display:block}
-.sobres-mesa{display:flex;flex-wrap:wrap;gap:8px;padding:16px;background:rgba(0,0,0,.25);border-radius:10px;border:2px dashed var(--border);min-height:320px;align-content:flex-start}
+.exp-layout{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
+.lista-img{width:100%}
+.lista-img img{width:100%;min-height:420px;object-fit:contain;border-radius:10px;display:block;background:rgba(0,0,0,.1)}
+.sobres-mesa{display:flex;flex-wrap:wrap;gap:10px;padding:18px;background:rgba(0,0,0,.25);border-radius:10px;border:2px dashed var(--border);min-height:420px;align-content:flex-start}
 .s-sobre{padding:7px 12px;border-radius:6px;font-size:.75rem;font-weight:600;cursor:pointer;transition:all .15s;border-left:4px solid transparent;user-select:none}
 .s-sobre:hover{transform:scale(1.04)}
 .s-sobre.az{background:rgba(59,130,246,.15);border-left-color:#3b82f6;color:#111827}

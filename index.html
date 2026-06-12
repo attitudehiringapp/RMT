@@ -1502,13 +1502,13 @@ function stars(score){
   const n=Math.round(score/20);
   return '<span class="stars">'+'★'.repeat(Math.max(0,n))+'☆'.repeat(Math.max(0,5-n))+'</span>';
 }
-function timeStarsN(remaining, total){
+function timeStarsN(remaining, total, threshold){
   const used = total - (remaining||0);
-  if(used <= 20) return 5;
-  return Math.round(5 * Math.max(0, 1 - (used - 20) / (total - 20)));
+  if(used <= threshold) return 5;
+  return Math.round(5 * Math.max(0, 1 - (used - threshold) / (total - threshold)));
 }
-function timeStars(remaining, total){
-  const n = timeStarsN(remaining, total);
+function timeStars(remaining, total, threshold){
+  const n = timeStarsN(remaining, total, threshold);
   return '<span class="stars">'+'★'.repeat(n)+'☆'.repeat(5-n)+'</span>';
 }
 
@@ -1941,11 +1941,11 @@ function generateResult(){
   const apiScore  = pct(S.apilado.correctos, 4);
 
   // --- PUNTUACIÓN FINAL POR ESTACIÓN (estrellas de tiempo como multiplicador) ---
-  const pickStars  = timeStarsN(S.picking.tiempoRestante, 150);
-  const ptlStars   = timeStarsN(S.ptl.tiempoRestante,     90);
-  const packStars  = timeStarsN(S.packing.tiempoRestante, 60);
-  const cintaStars = timeStarsN(S.cinta.tiempoRestante,   90);
-  const apiStars   = timeStarsN(S.apilado.tiempoRestante, 90);
+  const pickStars  = timeStarsN(S.picking.tiempoRestante, 150, 40);
+  const ptlStars   = timeStarsN(S.ptl.tiempoRestante,     90,  30);
+  const packStars  = timeStarsN(S.packing.tiempoRestante, 60,  10);
+  const cintaStars = timeStarsN(S.cinta.tiempoRestante,   90,  30);
+  const apiStars   = timeStarsN(S.apilado.tiempoRestante, 90,  30);
 
   const pickFinal  = Math.round(pickPrec  * pickStars  / 5);
   const ptlFinal   = Math.round(ptlScore  * ptlStars   / 5);
@@ -1983,38 +1983,38 @@ function generateResult(){
   document.getElementById('result-body').innerHTML=`
     <div class="result-hero">
       <div style="font-size:1.4rem;font-weight:800;color:#fff">${S.candidato.nombre||'Candidato/a'}</div>
-      <div style="color:#374151;font-size:.85rem;margin-top:4px">Evaluación: ${new Date().toLocaleDateString('es-ES')}</div>
+      <div style="color:rgba(255,255,255,.75);font-size:.85rem;margin-top:4px">Evaluación: ${new Date().toLocaleDateString('es-ES')}</div>
       <div class="aptitud-badge ${aptClass}">${aptBadge}</div>
-      <div style="font-size:3rem;font-weight:900;color:#fff;margin:4px 0">${global}<span style="font-size:1.2rem;color:#374151">%</span></div>
-      <div style="color:#374151;font-size:.85rem">${aptDesc}</div>
+      <div style="font-size:3rem;font-weight:900;color:#fff;margin:4px 0">${global}<span style="font-size:1.2rem;color:rgba(255,255,255,.75)">%</span></div>
+      <div style="color:rgba(255,255,255,.85);font-size:.85rem">${aptDesc}</div>
     </div>
 
     <div class="result-grid">
       <div class="result-card">
         <h4>🗂️ Picking</h4>
         <div class="big">${S.picking.correctos}<span style="font-size:1rem;color:var(--text3)">/${S.picking.totalPicks||6}</span></div>
-        ${timeStars(S.picking.tiempoRestante, 150)}
+        ${timeStars(S.picking.tiempoRestante, 150, 40)}
         <div class="sub">Errores: ${S.picking.errores} · Pedido nº${S.picking.pedidoId||'—'}</div>
         <div class="sub" style="color:#6b7280">⏱ Realizado en ${fmtUsed(S.picking.tiempoRestante,150)}</div>
       </div>
       <div class="result-card">
         <h4>🃏 PTL</h4>
         <div class="big">${S.ptl.secuencias}<span style="font-size:.9rem;color:#374151"> seq.</span></div>
-        ${timeStars(S.ptl.tiempoRestante, 90)}
+        ${timeStars(S.ptl.tiempoRestante, 90, 30)}
         <div class="sub">Incidencias: ${S.ptl.incidencias}</div>
         <div class="sub" style="color:#6b7280">⏱ Realizado en ${fmtUsed(S.ptl.tiempoRestante,90)}</div>
       </div>
       <div class="result-card">
         <h4>📦 Packing</h4>
         <div class="big">${S.packing.correctos}<span style="font-size:1rem;color:#374151">/6</span></div>
-        ${timeStars(S.packing.tiempoRestante, 60)}
+        ${timeStars(S.packing.tiempoRestante, 60, 10)}
         <div class="sub">Sobres correctos · Hoja nº${S.packing.sheetId||'—'}</div>
         <div class="sub" style="color:#6b7280">⏱ Realizado en ${fmtUsed(S.packing.tiempoRestante,60)}</div>
       </div>
       <div class="result-card">
         <h4>🚚 Expediciones</h4>
         <div class="big">${S.cinta.correctos}<span style="font-size:.9rem;color:#374151"> + ${S.apilado.correctos}/4</span></div>
-        ${timeStars((S.cinta.tiempoRestante+S.apilado.tiempoRestante)/2, 90)}
+        ${timeStars((S.cinta.tiempoRestante+S.apilado.tiempoRestante)/2, 90, 30)}
         <div class="sub">Cinta: ${S.cinta.correctos}/${cintaModel?.lista?.length||10} · Apilado: ${S.apilado.correctos}/4</div>
         <div class="sub" style="color:#6b7280">⏱ Cinta ${fmtUsed(S.cinta.tiempoRestante,90)} · Apilado ${fmtUsed(S.apilado.tiempoRestante,90)}</div>
       </div>

@@ -751,9 +751,6 @@ select option{background:#fff;color:var(--text)}
         <div class="stat-box"><div class="stat-n" id="picks-err">0</div><div class="stat-l">Errores</div></div>
         <div class="stat-box"><div class="stat-n" id="picks-tot">0/6</div><div class="stat-l">Progreso</div></div>
       </div>
-      <div style="padding:0 12px 4px">
-        <button class="btn btn-ghost btn-sm" onclick="recordarAlturas()" style="width:100%;font-size:.75rem">🔍 Recordar alturas <span style="color:var(--red);font-weight:700">−10s</span></button>
-      </div>
       <div style="padding:0 12px 12px">
         <button class="btn btn-success" id="btn-end-pick" disabled onclick="endPicking()" style="width:100%">✓ Finalizar Picking</button>
       </div>
@@ -1219,25 +1216,6 @@ select option{background:#fff;color:var(--text)}
   </div>
 </div>
 
-<!-- ══════════════ MODAL ALTURAS ══════════════ -->
-<div id="modal-alturas" class="modal-overlay">
-  <div class="modal-box">
-    <div class="modal-icon">📏</div>
-    <h2>Referencia de alturas</h2>
-    <div style="display:flex;gap:12px;justify-content:center;margin:16px 0">
-      <div style="background:#dbeafe;border:2px solid #93c5fd;border-radius:10px;padding:14px 22px;text-align:center">
-        <div style="font-size:1.4rem;font-weight:900;color:#1e3a8a">AZUL</div>
-        <div style="font-size:.8rem;color:#1d4ed8;margin-top:4px;font-weight:700">Altura 1</div>
-      </div>
-      <div style="background:#ffedd5;border:2px solid #fdba74;border-radius:10px;padding:14px 22px;text-align:center">
-        <div style="font-size:1.4rem;font-weight:900;color:#7c2d12">NARANJA</div>
-        <div style="font-size:.8rem;color:#c2410c;margin-top:4px;font-weight:700">Altura 2</div>
-      </div>
-    </div>
-    <p style="color:var(--red);font-weight:700;font-size:.85rem">Se han descontado 10 segundos de tu tiempo.</p>
-    <button class="btn btn-primary" onclick="closeModalAlturas()">Entendido</button>
-  </div>
-</div>
 
 <!-- ══════════════ MODAL TIEMPO ══════════════ -->
 <div id="modal-time" class="modal-overlay">
@@ -1661,14 +1639,6 @@ function clickTarj(el){
   }
 }
 
-function recordarAlturas(){
-  document.getElementById('modal-alturas').classList.add('open');
-  // Penaliza -10s al timer activo
-  if(window._pickPenalize) window._pickPenalize(10);
-}
-function closeModalAlturas(){
-  document.getElementById('modal-alturas').classList.remove('open');
-}
 
 function endPicking(){
   if(window._pickStop) S.picking.tiempoRestante=window._pickStop()||0;

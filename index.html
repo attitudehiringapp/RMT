@@ -1522,6 +1522,24 @@ function behavScore(tiempoRestante, totalTiempo, errores){
 
 // ═══════════════════════ REGISTER ═══════════════════════
 function showPreStart(){
+  const campos = [
+    {id:'r-nombre',  label:'Nombre y apellidos'},
+    {id:'r-tel',     label:'Teléfono'},
+    {id:'r-email',   label:'E-mail'},
+    {id:'r-nac',     label:'Fecha de nacimiento'},
+    {id:'r-sexo',    label:'Sexo'},
+  ];
+  const grupos = [
+    {id:'exp-checks',  label:'Experiencia previa'},
+    {id:'disp-checks', label:'Disponibilidad'},
+    {id:'mov-checks',  label:'Movilidad'},
+  ];
+  const vacios = campos.filter(c=>!document.getElementById(c.id).value.trim()).map(c=>c.label);
+  grupos.forEach(g=>{ if(!document.querySelector(`#${g.id} div.checked`)) vacios.push(g.label); });
+  if(vacios.length){
+    showModal('Por favor, completa los siguientes campos antes de continuar:\n\n• '+vacios.join('\n• '), ()=>{});
+    return;
+  }
   const nombre = document.getElementById('r-nombre').value.trim();
   const primerNombre = nombre.split(' ')[0] || 'Candidato/a';
   document.getElementById('pre-start-nombre').textContent = '¡Hola, ' + primerNombre + '!';

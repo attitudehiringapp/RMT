@@ -2030,11 +2030,11 @@ function generateResult(){
       <h3 style="margin-bottom:12px">📋 Detalle técnico</h3>
       <table style="width:100%;font-size:.82rem;border-collapse:collapse">
         <tr style="border-bottom:1px solid var(--border)"><th style="text-align:left;padding:6px 4px;color:#374151">Estación</th><th style="padding:6px 4px;color:#374151">Resultado</th><th style="padding:6px 4px;color:#374151">Puntuación</th></tr>
-        <tr style="border-bottom:1px solid var(--border)"><td style="padding:7px 4px">Picking</td><td style="padding:7px 4px">${S.picking.correctos}/${S.picking.totalPicks||6} picks · ${S.picking.errores} errores</td><td style="padding:7px 4px;font-weight:700;color:${pickPrec>=70?'#4ade80':pickPrec>=40?'#facc15':'#f87171'}">${pickPrec}%</td></tr>
-        <tr style="border-bottom:1px solid var(--border)"><td style="padding:7px 4px">PTL</td><td style="padding:7px 4px">${S.ptl.secuencias} secuencias · ${S.ptl.incidencias} incidencias</td><td style="padding:7px 4px;font-weight:700;color:${ptlScore>=70?'#4ade80':ptlScore>=40?'#facc15':'#f87171'}">${ptlScore}%</td></tr>
-        <tr style="border-bottom:1px solid var(--border)"><td style="padding:7px 4px">Packing</td><td style="padding:7px 4px">${S.packing.correctos}/6 sobres correctos · ${S.packing.errores} errores</td><td style="padding:7px 4px;font-weight:700;color:${packPrec>=70?'#4ade80':packPrec>=40?'#facc15':'#f87171'}">${packPrec}%</td></tr>
-        <tr style="border-bottom:1px solid var(--border)"><td style="padding:7px 4px">Cinta</td><td style="padding:7px 4px">${S.cinta.correctos}/${cintaModel?.lista?.length||10} sobres correctos · ${S.cinta.errores} errores</td><td style="padding:7px 4px;font-weight:700;color:${cintaPrec>=70?'#4ade80':cintaPrec>=40?'#facc15':'#f87171'}">${cintaPrec}%</td></tr>
-        <tr><td style="padding:7px 4px">Apilado</td><td style="padding:7px 4px">${S.apilado.correctos}/4 respuestas correctas</td><td style="padding:7px 4px;font-weight:700;color:${apiScore>=70?'#4ade80':apiScore>=40?'#facc15':'#f87171'}">${apiScore}%</td></tr>
+        <tr style="border-bottom:1px solid var(--border)"><td style="padding:7px 4px">Picking</td><td style="padding:7px 4px">${S.picking.correctos}/${S.picking.totalPicks||6} picks · ${S.picking.errores} errores</td><td style="padding:7px 4px;font-weight:700;color:${pickFinal>=70?'#4ade80':pickFinal>=40?'#facc15':'#f87171'}">${pickFinal}%</td></tr>
+        <tr style="border-bottom:1px solid var(--border)"><td style="padding:7px 4px">PTL</td><td style="padding:7px 4px">${S.ptl.secuencias} secuencias · ${S.ptl.incidencias} incidencias</td><td style="padding:7px 4px;font-weight:700;color:${ptlFinal>=70?'#4ade80':ptlFinal>=40?'#facc15':'#f87171'}">${ptlFinal}%</td></tr>
+        <tr style="border-bottom:1px solid var(--border)"><td style="padding:7px 4px">Packing</td><td style="padding:7px 4px">${S.packing.correctos}/6 sobres correctos · ${S.packing.errores} errores</td><td style="padding:7px 4px;font-weight:700;color:${packFinal>=70?'#4ade80':packFinal>=40?'#facc15':'#f87171'}">${packFinal}%</td></tr>
+        <tr style="border-bottom:1px solid var(--border)"><td style="padding:7px 4px">Cinta</td><td style="padding:7px 4px">${S.cinta.correctos}/${cintaModel?.lista?.length||10} sobres correctos · ${S.cinta.errores} errores</td><td style="padding:7px 4px;font-weight:700;color:${cintaFinal>=70?'#4ade80':cintaFinal>=40?'#facc15':'#f87171'}">${cintaFinal}%</td></tr>
+        <tr><td style="padding:7px 4px">Apilado</td><td style="padding:7px 4px">${S.apilado.correctos}/4 respuestas correctas</td><td style="padding:7px 4px;font-weight:700;color:${apiFinal>=70?'#4ade80':apiFinal>=40?'#facc15':'#f87171'}">${apiFinal}%</td></tr>
       </table>
     </div>
 
@@ -2044,7 +2044,7 @@ function generateResult(){
     </div>
   `;
   go('sc-result');
-  sendResultEmail({global,aptBadge,pickPrec,ptlScore,packPrec,cintaPrec,apiScore});
+  sendResultEmail({global,aptBadge,pickFinal,ptlFinal,packFinal,cintaFinal,apiFinal});
 }
 
 function sendResultEmail(scores){
@@ -2065,15 +2065,15 @@ function sendResultEmail(scores){
     movilidad:    c.mov,
     puntuacion:   `${scores.global}%`,
     aptitud:      scores.aptBadge,
-    picking:      `${S.picking.correctos}/${S.picking.totalPicks||6} picks · ${S.picking.errores} errores · ${scores.pickPrec}%`,
+    picking:      `${S.picking.correctos}/${S.picking.totalPicks||6} picks · ${S.picking.errores} errores · ${scores.pickFinal}%`,
     picking_t:    fmtUsed(S.picking.tiempoRestante, 150),
-    ptl:          `${S.ptl.secuencias} secuencias · ${S.ptl.incidencias} incidencias · ${scores.ptlScore}%`,
+    ptl:          `${S.ptl.secuencias} secuencias · ${S.ptl.incidencias} incidencias · ${scores.ptlFinal}%`,
     ptl_t:        fmtUsed(S.ptl.tiempoRestante, 90),
-    packing:      `${S.packing.correctos}/6 sobres · ${S.packing.errores} errores · ${scores.packPrec}%`,
+    packing:      `${S.packing.correctos}/6 sobres · ${S.packing.errores} errores · ${scores.packFinal}%`,
     packing_t:    fmtUsed(S.packing.tiempoRestante, 60),
-    cinta:        `${S.cinta.correctos}/${cintaModel?.lista?.length||10} operadores · ${S.cinta.errores} errores · ${scores.cintaPrec}%`,
+    cinta:        `${S.cinta.correctos}/${cintaModel?.lista?.length||10} operadores · ${S.cinta.errores} errores · ${scores.cintaFinal}%`,
     cinta_t:      fmtUsed(S.cinta.tiempoRestante, 90),
-    apilado:      `${S.apilado.correctos}/4 respuestas · ${scores.apiScore}%`,
+    apilado:      `${S.apilado.correctos}/4 respuestas · ${scores.apiFinal}%`,
     apilado_t:    fmtUsed(S.apilado.tiempoRestante, 90),
   };
 
